@@ -1,0 +1,187 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!-- saved from url=(0066)http://www.codeproject.com/script/Articles/ViewHtml.aspx?aid=63646 -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Article Source</title>
+<link rel="stylesheet" type="text/css" href="./CalendarGadget_files/CodeProject.css">
+<!--<base href="http://www.codeproject.com/KB/gadgets/">--><base href=".">
+</head>
+<body>
+<!--
+HTML for article "Calendar Gadget using Qt Framework" by BD Mihai
+URL: http://www.codeproject.com/KB/gadgets/CalendarGadget.aspx
+Copyright 2010 by BD Mihai
+All formatting, additions and alterations Copyright © CodeProject, 1999-2011
+-->
+
+
+
+<p><b>Please choose 'View Source' in your browser to view the HTML, or File | Save to save this 
+file to your hard drive for editing.</b></p>
+
+<hr class="Divider subdue">
+<div>
+
+
+
+
+<!-- Start Article -->
+<span id="ArticleContent">
+<ul class="download">
+<li><a href="http://www.codeproject.com/KB/gadgets/CalendarGadget/CalendarGadget_Demo.zip">Download demo - 4.21 MB </a></li>
+
+<li><a href="http://www.codeproject.com/KB/gadgets/CalendarGadget/CalendarGadget_Source.zip">Download source - 85.85 KB </a></li>
+</ul>
+<img height="262" alt="CalendarGadget.png" hspace="0" src="./CalendarGadget_files/CalendarGadget.png" width="388" border="0"> 
+<h2>Introduction </h2>
+
+<p>The application is realized using the Qt framework. Qt provides you with all the functionality needed to develop advanced GUI applications on desktop and embedded platforms. Qt uses the native graphics APIs of each platform it supports, taking full advantage of system resources and ensuring that applications have native look and feel. Using Qt is very easy and intuitive and in my opinion is the next best thing after Microsoft .NET Framework for Windows based applications. It has the advantage that the same code can be compiled for many platforms (Windows, Linux, Mac OS), is written entirely in C++ (some projects may require only C++) and is free (you can choose from LGPL/GPL/Commercial license). </p>
+
+<h2>Background </h2>
+
+<p>While working, I find it&nbsp;very useful to have a calendar at hand. I have tried to use some existing applications but none could display the calendar week number. So I have decided to have my own calendar gadget. The idea was to be able to use my gadget also on Windows XP. If you want to start the program together with Windows just create a shortcut to your Startup folder.</p>
+
+<h2>Using the Code </h2>
+
+<p>In order to compile the code you need to have Qt framework and Qt Visual Studio Add-in (in case you compile using Visual Studio). You can download them from <a title="Qt Homepage" href="http://qt.nokia.com">http://qt.nokia.com</a>. Visual Studio 2008 or QtCreator 2.0.1 can be used to compile the code.</p>
+
+<p>The Qt framework is compiled without SSL support. This is required in order to establish a Google connection and get the authentication code for the calendar service. OpenSLL is the best choice since it is free. You can get a precompiled version from <a title="OpenSSL Binary Distributions" href="http://www.openssl.org/related/binaries.html">http://www.openssl.org/related/binaries.html</a>.</p>
+
+<p>To make the application installer I have used InnoSetup. This is an open source project used for creating Windows Installers. You can download this from <a title="InnoSetup Homepage" href="http://www.jrsoftware.org/isinfo.php">http://www.jrsoftware.org/isinfo.php</a>.</p>
+
+<h2>Points of Interest</h2>
+
+<p>The <code>Gadget</code> class offers the basic functionality of a gadget: a nice frame, some fade in/out animation and the most important feature is that it keeps the window on the desktop when you choose “Show desktop”. </p>
+
+<p>Normally when the user chooses to show the desktop, all windows are hidden. Unfortunately there is no flag or style to avoid this behavior and after a few hours of documentation on the net, I found the way to do this. All that is required is to have a global event hook by providing a callback function. </p>
+
+<p>Keep the id for each object. </p>
+
+<pre lang="C++">HWINEVENTHOOK globalHookId; </pre>
+
+<p>Create the event hook when the actual window is shown. </p>
+
+<pre lang="C++">globalHookId = SetWinEventHook(EVENT_SYSTEM_FOREGROUND, EVENT_SYSTEM_FOREGROUND, NULL, (WINEVENTPROC)HandleWinEvent,0,0,0); </pre>
+
+<p>Remove the event hook from the system when the object is no longer required (in the destructor). </p>
+
+<pre lang="C++">UnhookWinEvent(globalHookId); </pre>
+
+<p>The <code>HandleWinEvent</code> is a global function that will loop through all the existing gadgets on the desktop and show them. </p>
+
+<pre lang="C++">void CALLBACK HandleWinEvent(HWINEVENTHOOK hook, DWORD event, HWND hwnd, 
+                             LONG idObject, LONG idChild, DWORD dwEventThread, 
+                             DWORD dwmsEventTime) 
+{
+  if (event == EVENT_SYSTEM_FOREGROUND) 
+  {
+    TCHAR tmp[255];
+    int r = GetClassName(hwnd, tmp, 250);
+    if (wcscmp(tmp, L"WorkerW")==0) 
+    {
+      Gadget::assureVisibility();
+    }
+  }
+} </pre>
+
+<p>The <code>CalendarService</code> class is used to get all-day-events from the your Google calendar using the Google Calendar Api. This is done in tree steps: obtain an authentication code using the user name and password, get a session id, query the calendar for events:<p>
+
+<p>1. For the authentication a post needs to be set to "https://www.google.com/accounts/ClientLogin" and in return the auth code will be received. This is kept and used for all other requests. The authentication part is done in the <code>AuthService</code>. Details about login can be read on <a title="Google" href="http://code.google.com/intl/en/apis/gdata/docs/auth/overview.html#ClientLogin">http://code.google.com/intl/en/apis/gdata/docs/auth/overview.html#ClientLogin</a>.</p>
+
+<p>1. For the authentication a post needs to be set to "https://www.google.com/accounts/ClientLogin" and in return the auth code will be received. This is kept and used for all other requests. The authentication part is done in the <code>AuthService</code>. </p>
+
+<p>2. Trying to get the data directly will not work because all requests will redirected. Because of this a get request must be performed at "http://www.google.com/calendar/feeds/default/private/full" using the "X-If-No-Redirect" set to "1" in order to get a session id. ""X-Redirect-Location" will be read from the reply. Details about calendar api can be read on <a title="Google Calendar Api" href="http://code.google.com/intl/en/apis/calendar/data/2.0/reference.html">http://code.google.com/intl/en/apis/calendar/data/2.0/reference.html</a>.<p>
+
+<pre lang="C++">
+QNetworkRequest request = QNetworkRequest();
+...
+request.setRawHeader("X-If-No-Redirect", "1");
+</pre>
+
+<p>3. In order to limit the results a query is made using a start time and end time. The start and end are the values represented by the first and last date showed in the calendar.</p>
+
+<pre lang="C++">
+QUrl address("http://www.google.com/calendar/feeds/default/private/full");
+
+address.addQueryItem("gsessionid", session);
+address.addQueryItem("start-min", QString("%1T00:00:00").arg(newStartDate.toString("yyyy-MM-dd")));
+address.addQueryItem("start-max", QString("%1T23:59:59").arg(newEndDate.toString("yyyy-MM-dd")));
+</pre>
+
+<p>I wanted to start the application together with Windows so the password is also saved in the application settings. I did not want to save the password in plain text so I used the Windows Crypto Api to do a simple RC4 encryption. This is by no means safe but it protects my password from simple view. Here is the basic workflow (check out the full implementation in the <code>Settings</code> class):</p>
+
+<pre lang="C++">
+// get a CSP handle
+HCRYPTPROV CryptoProv = NULL;
+if( !CryptAcquireContext(&CryptoProv, NULL, NULL, PROV_RSA_FULL, 0))
+  if (!CryptAcquireContext(&CryptoProv, NULL, NULL, PROV_RSA_FULL, CRYPT_NEWKEYSET))
+    if (!CryptAcquireContext(&CryptoProv, NULL, NULL, PROV_RSA_FULL, CRYPT_VERIFYCONTEXT))
+      return "";
+
+// import do-nothing exponent-of-one keypair
+HCRYPTKEY ExponentOfOneKey = NULL;
+CryptImportKey(CryptoProv, PrivateKeyWithExponentOfOne, sizeof(PrivateKeyWithExponentOfOne), 0, 0, &ExponentOfOneKey);
+
+// import known key from RC4 template
+HCRYPTKEY RC4Key = NULL;
+DWORD cbBlob = sizeof(RC4KeyBlock);
+CryptImportKey(CryptoProv, RC4KeyBlock, cbBlob, ExponentOfOneKey, 0, &RC4Key);
+
+// encrypt the data
+CryptEncrypt( RC4Key, 0, 1, 0, data, &length, length);
+
+// clean up
+CryptDestroyKey(RC4Key);
+CryptDestroyKey(ExponentOfOneKey);
+CryptReleaseContext(CryptoProv,0);
+</pre>
+
+<h2>History </h2>
+
+<ul>
+<li>Version 1.0.1</li>
+<ul>
+<li>Initial version</li>
+</ul>
+<li>Version 1.0.2</li>
+<ul>
+<li>Gadget windows stay on top after "Show desktop"</li>
+</ul>
+<li>Version 1.0.3</li>
+<ul>
+<li>Fixed email link in about</li>
+</ul>
+<li>Version 1.0.4</li>
+<ul>
+<li>Calendar Gadget - rename</li>
+</ul>
+<li>Version 1.0.5</li>
+<ul>
+<li>Show all day events from Google Calendar</li>
+</ul>
+<li>Version 1.0.6</li>
+<ul>
+<li>Upgraded to Qt 4.7.0</li>
+<li>ConnectDialog refactored</li>
+<li>Button refactored using the state machine mechanism</li>
+<li>Password remembered in Settings.ini</li>
+<li>Setup added</li>
+</ul>
+<li>Version 1.0.7</li>
+<ul>
+<li>Http replaced with QNetworkManager</li>
+<li>Proxy</li>
+<li>Animations added</li>
+<li>Code comments</li>
+</ul>
+</ul>
+
+</span>
+<!-- End Article -->
+
+
+
+
+</div> 
+
+
+</body></html>
