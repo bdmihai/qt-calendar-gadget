@@ -1,0 +1,46 @@
+﻿********************************************************************************
+Version 1.0.1
+- Initial version
+********************************************************************************
+Version 1.0.2
+- Gadget windows stay on top after "Show desktop"
+TODO:
+- *Put all settings and refactor Calendar class
+********************************************************************************
+Version 1.0.3
+- Fixed email link in about
+TODO:
+- *
+********************************************************************************
+Version 1.0.4
+- Calendar Gadget - rename
+TODO:
+- *
+********************************************************************************
+Version 1.0.5
+- Show all day events from Google Calendar
+TODO:
+- * 
+********************************************************************************
+Version 1.0.6
+- Upgraded to Qt 4.7.0
+- ConnectDialog refactored
+- Button refactored using the state machine mechanism
+- Password remembered in Settings.ini
+- Setup added
+TODO:
+- * 
+********************************************************************************
+Version 1.0.7
+- Http replaced with QNetworkManager
+- Proxy
+- Animations added
+- Code comments
+TODO:
+- *
+********************************************************************************
+Version 1.0.7
+- New popup widget with same style instead of QMenu for year/month selection
+TODO:
+- *
+********************************************************************************
