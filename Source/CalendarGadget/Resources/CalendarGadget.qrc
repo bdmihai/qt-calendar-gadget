@@ -1,0 +1,10 @@
+<RCC>
+    <qresource prefix="/">
+        <file>PrevMonth.png</file>
+        <file>NextMonth.png</file>
+        <file>About.png</file>
+        <file>AppIcon.png</file>
+        <file>Close.png</file>
+        <file>Google.png</file>
+    </qresource>
+</RCC>
