@@ -214,3 +214,5 @@ pip-log.txt
 
 #Mr Developer
 .mr.developer.cfg
+Source/CalendarGadget/Settings.ini
+Source/CalendarGadget/GeneratedFiles/qrc_CalendarGadget.cpp
