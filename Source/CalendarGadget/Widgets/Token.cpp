@@ -1,20 +1,20 @@
 /****************************************************************************
 **
-** Copyright (C) 2010-2011 B.D. Mihai.
+** Copyright (C) 2010-2016 B.D. Mihai.
 **
 ** This file is part of CalendarGadget.
 **
-** CalendarGadget is free software: you can redistribute it and/or modify it 
-** under the terms of the GNU Lesser Public License as published by the Free 
-** Software Foundation, either version 3 of the License, or (at your option) 
+** CalendarGadget is free software: you can redistribute it and/or modify it
+** under the terms of the GNU Lesser Public License as published by the Free
+** Software Foundation, either version 3 of the License, or (at your option)
 ** any later version.
 **
-** CalendarGadget is distributed in the hope that it will be useful, but 
-** WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY 
-** or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser Public License for 
+** CalendarGadget is distributed in the hope that it will be useful, but
+** WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+** or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser Public License for
 ** more details.
 **
-** You should have received a copy of the GNU Lesser Public License along 
+** You should have received a copy of the GNU Lesser Public License along
 ** with CalendarGadget.  If not, see http://www.gnu.org/licenses/.
 **
 ****************************************************************************/
@@ -46,79 +46,77 @@ Token::~Token()
 /*!
 This function sets the date for the token.
 */
-void Token::setDate(const QDate& newDate, const int& currentMonth)
+void Token::setDate(const QDate &newDate, const int &currentMonth)
 {
   date = newDate;
-  month = currentMonth; 
+  month = currentMonth;
   setDisplayText(false);
   setToolTip("");
 }
 
 /*!
-This function sets the events for the token. All events are passed and the token 
+This function sets the event for the token. Each events is passed and the token
 selects the relevant ones.
 */
-void Token::setEvents(EventList events)
+void Token::setEvent(EventItem eventItem)
 {
-  bool hasEvents = false;
-  QString tooltip;
-
-  foreach (Event event, events)
+  if (date == eventItem.start.date())
   {
-    if (date == event.getDate())
+    QString title;
+    if (eventItem.allDayEvent)
+      title = "Today:";
+    else
+      title = QString("%1 - %2:").arg(eventItem.start.toString("hh:mm")).arg(eventItem.end.toString("hh:mm"));
+    if (toolTip() == "")
     {
-      if (tooltip.isEmpty())
-      {
-        tooltip = QString("<font size=\"3\" color=\"black\" face=\"Verdana\"><b>Events:</b></font>"
-          "<ul><li><font size=\"3\" color=\"black\" face=\"Verdana\">%1</font></color></li>").
-          arg(event.getTitle());
-
-        hasEvents = true;
-      }
-      else
-      {
-        tooltip = tooltip + QString("<li><font size=\"3\" color=\"black\" face=\"Verdana\">%1</font></color></li>").
-          arg(event.getTitle());
-      }
+      QString tooltip = QString("<font size=\"3\" color=\"black\" face=\"Verdana\"><b>%1</b></font>"
+                                "<ul><li><font size=\"3\" color=\"black\" face=\"Verdana\">%2</font></color></li></ul>").
+                        arg(title).
+                        arg(eventItem.summary);
+      setToolTip(tooltip);
     }
-  }
+    else
+    {
+      QString tooltip = QString("<font size=\"3\" color=\"black\" face=\"Verdana\"><b>%1</b></font>"
+                                "<ul><li><font size=\"3\" color=\"black\" face=\"Verdana\">%2</font></color></li></ul>").
+                        arg(title).
+                        arg(eventItem.summary);
+      setToolTip(toolTip() + tooltip);
+    }
 
-  if (hasEvents)
-  {
-    setToolTip(tooltip + "</ul>");
-  }
-  else
-  {
-    setToolTip("");
-  }
 
-  if (hasEvents)
-    setDisplayText(true);
+    if (eventItem.allDayEvent)
+      setDisplayText(true);
+  }
 }
 
-void Token::setDisplayText(bool hasEvents)
+/*!
+Format the test that shall be displayed taking into account the availability of 
+a all day event.
+*/
+void Token::setDisplayText(bool hasAllDayEvent)
 {
   QString dayText;
 
-  if (hasEvents)
+  if (hasAllDayEvent)
   {
     if (date.month() == month)
     {
       if (date == QDate::currentDate())
       {
         dayText = QString("<b><font size=\"4\" color=\"maroon\" face=\"Verdana\">%1</font></color></b>").
-          arg(date.day());
+                  arg(date.day());
       }
       else
       {
         dayText = QString("<b><font size=\"4\" color=\"maroon\" face=\"Verdana\">%1</font></color></b>").
-          arg(date.day());
+                  arg(date.day());
       }
     }
     else
     {
       dayText = QString("<font size=\"4\" color=\"maroon\" face=\"Verdana\">%1</font></color>").
-        arg(date.day());
+                arg(date.day());
     }
   }
   else
@@ -128,18 +126,18 @@ void Token::setDisplayText(bool hasEvents)
       if (date == QDate::currentDate())
       {
         dayText = QString("<b><font size=\"4\" color=\"black\" face=\"Verdana\">%1</font></color></b>").
-          arg(date.day());
+                  arg(date.day());
       }
       else
       {
         dayText = QString("<font size=\"4\" color=\"black\" face=\"Verdana\">%1</font></color>").
-          arg(date.day());
+                  arg(date.day());
       }
     }
     else
     {
       dayText = QString("<font size=\"4\" color=\"gray\" face=\"Verdana\">%1</font></color>").
-        arg(date.day());
+                arg(date.day());
     }
   }
 
@@ -147,30 +145,30 @@ void Token::setDisplayText(bool hasEvents)
 }
 
 /*!
-Override the mouse move event. Call the default widget implementation in order 
+Override the mouse move event. Call the default widget implementation in order
 to pass this message to the parent also.
 */
-void Token::mouseMoveEvent(QMouseEvent * event)
+void Token::mouseMoveEvent(QMouseEvent *event)
 {
   QLabel::mouseMoveEvent(event);
   QWidget::mouseMoveEvent(event);
 }
 
 /*!
-Override the mouse press event. Call the default widget implementation in order 
+Override the mouse press event. Call the default widget implementation in order
 to pass this message to the parent also.
 */
-void Token::mousePressEvent(QMouseEvent * event)
+void Token::mousePressEvent(QMouseEvent *event)
 {
   QLabel::mousePressEvent(event);
   QWidget::mousePressEvent(event);
 }
 
 /*!
-Override the mouse release event. Call the default widget implementation in order 
+Override the mouse release event. Call the default widget implementation in order
 to pass this message to the parent also.
 */
-void Token::mouseReleaseEvent(QMouseEvent * event)
+void Token::mouseReleaseEvent(QMouseEvent *event)
 {
   QLabel::mouseReleaseEvent(event);
   QWidget::mouseReleaseEvent(event);

@@ -1,20 +1,20 @@
 /****************************************************************************
 **
-** Copyright (C) 2010-2011 B.D. Mihai.
+** Copyright (C) 2010-2016 B.D. Mihai.
 **
 ** This file is part of CalendarGadget.
 **
-** CalendarGadget is free software: you can redistribute it and/or modify it 
-** under the terms of the GNU Lesser Public License as published by the Free 
-** Software Foundation, either version 3 of the License, or (at your option) 
+** CalendarGadget is free software: you can redistribute it and/or modify it
+** under the terms of the GNU Lesser Public License as published by the Free
+** Software Foundation, either version 3 of the License, or (at your option)
 ** any later version.
 **
-** CalendarGadget is distributed in the hope that it will be useful, but 
-** WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY 
-** or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser Public License for 
+** CalendarGadget is distributed in the hope that it will be useful, but
+** WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+** or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser Public License for
 ** more details.
 **
-** You should have received a copy of the GNU Lesser Public License along 
+** You should have received a copy of the GNU Lesser Public License along
 ** with CalendarGadget.  If not, see http://www.gnu.org/licenses/.
 **
 ****************************************************************************/
@@ -25,18 +25,13 @@
 #include "Calendar.h"
 #include "ConnectDialog.h"
 
-extern Settings settings;
-
 /*!
 Create a new instance of the Calendar class.
 */
 Calendar::Calendar(QWidget *parent) : Gadget(parent)
 {
   // create the calendar service
-  calendarService = new CalendarService();
-  calendarService->configureProxy(settings.getProxyType(), settings.getProxyAddress(), settings.getProxyPort());
-  if (settings.isRemembered())
-    calendarService->login(settings.getUsername() + "@gmail.com", settings.getPassword());
+  googleService = new GoogleService(this);
 
   // create the base layout
   createLayout();
@@ -61,7 +56,7 @@ Clean up.
 */
 Calendar::~Calendar()
 {
-  delete calendarService;
+  delete googleService;
 }
 
 /*!
@@ -100,10 +95,10 @@ void Calendar::createLayout()
   daysTable->resize(299, 158);
   daysTable->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
-  connect(daysTable, SIGNAL(requestEvents(const QDate &, const QDate &)),
-    calendarService, SLOT(getEvents(const QDate &, const QDate &)));
-  connect(calendarService, SIGNAL(eventsAvailable(EventList)),
-    daysTable, SLOT(displayEvents(EventList)));
+  connect(daysTable, SIGNAL(requestEvents(const QDateTime &, const QDateTime &)),
+          googleService, SLOT(getEvents(const QDateTime &, const QDateTime &)));
+  connect(googleService, SIGNAL(eventAvailable(EventItem)),
+          daysTable, SLOT(displayEvent(EventItem)));
 
   todayButton = new Button(this);
   todayButton->setAlignment(Qt::AlignCenter);
@@ -143,13 +138,22 @@ void Calendar::createLayout()
 
   setWindowTitle("Calendar");
   setWindowIcon(QIcon(":/AppIcon.png"));
-
-  move(settings.getPosition());
-  resize(settings.getSize());
 }
 
 /*!
-This function overrides the normal widget close event in order to save the 
+This function overrides the normal widget show event in order to load the
+settings and perform event driven tasks.
+*/
+void Calendar::showEvent(QShowEvent *event)
+{
+  move(settings.getPosition());
+  resize(settings.getSize());
+
+  Gadget::showEvent(event);
+}
+
+/*!
+This function overrides the normal widget close event in order to save the
 settings and close the entire application.
 */
 void Calendar::closeEvent(QCloseEvent *event)
@@ -206,26 +210,35 @@ void Calendar::updateYears()
 
 /*!
 Display the next month.
+Day of the month is set to 1 avoiding days that are not available for the selected month.
 */
 void Calendar::goToPrevMonth()
 {
   daysTable->animateLeft();
+  displayDate.setDate(displayDate.year(),
+                      displayDate.month(),
+                      1);
   displayDate = displayDate.addMonths(-1);
   updateDisplay();
 }
 
 /*!
 Display the previous month.
+Day of the month is set to 1 avoiding days that are not available for the selected month.
 */
 void Calendar::goToNextMonth()
 {
   daysTable->animateRight();
+  displayDate.setDate(displayDate.year(),
+                      displayDate.month(),
+                      1);
   displayDate = displayDate.addMonths(1);
   updateDisplay();
 }
 
 /*!
 Display the selected month.
+Day of the month is set to 1 avoiding days that are not available for the selected month.
 */
 void Calendar::goToMonth()
 {
@@ -233,15 +246,16 @@ void Calendar::goToMonth()
   if (button)
   {
     daysTable->animateTop();
-    displayDate.setDate(displayDate.year(), 
-      QDate().fromString(button->getTag(), "MMMM").month(), 
-      displayDate.day());
+    displayDate.setDate(displayDate.year(),
+                        QDate().fromString(button->getTag(), "MMMM").month(),
+                        1);
     updateDisplay();
   }
 }
 
 /*!
 Display the selected year.
+Day of the month is set to 1 avoiding days that are not available for the selected month.
 */
 void Calendar::goToYear()
 {
@@ -249,9 +263,9 @@ void Calendar::goToYear()
   if (button)
   {
     daysTable->animateTop();
-    displayDate.setDate(button->getTag().toInt(), 
-      displayDate.month(), 
-      displayDate.day());
+    displayDate.setDate(button->getTag().toInt(),
+                        displayDate.month(),
+                        1);
     updateDisplay();
   }
 }
@@ -271,51 +285,31 @@ Shows the connection dialog.
 */
 void Calendar::showConnect()
 {
-  if (calendarService->isServiceAvailable())
+  // check if we have ssl support (mandatory for Google)
+  if (QSslSocket::supportsSsl())
   {
     ConnectDialog *connectDialog;
     connectDialog = new ConnectDialog(this);
 
-    connectDialog->setRemembered(settings.isRemembered());
-    connectDialog->setUsername(settings.getUsername());
-    connectDialog->setPassword(settings.getPassword());
-    connectDialog->setProxyType(settings.getProxyType());
-    connectDialog->setProxyAddress(settings.getProxyAddress());
-    connectDialog->setProxyPort(settings.getProxyPort());
-
+    connectDialog->setAuthRequestUrl(googleService->getAuthRequestUrl());
     if (connectDialog->exec() == QDialog::Accepted)
     {
-      settings.setRemembered(connectDialog->isRemembered());
-      if (connectDialog->isRemembered())
+      if (!googleService->login(connectDialog->getAuthCode()))
       {
-        settings.setUsername(connectDialog->getUsername());
-        settings.setPassword(connectDialog->getPassword());
-      }
-      else
-      {
-        settings.setUsername("");
-        settings.setPassword("");
-      }
-
-      settings.setProxyType(connectDialog->getProxyType());
-      settings.setProxyAddress(connectDialog->getProxyAddress());
-      settings.setProxyPort(connectDialog->getProxyPort());
-    
-      calendarService->configureProxy(connectDialog->getProxyType(), connectDialog->getProxyAddress(), connectDialog->getProxyPort());
-      if (!calendarService->login(connectDialog->getUsername() + "@gmail.com", connectDialog->getPassword()))
-      {
-        QMessageBox::information(this, tr("Calendar Gadget"),
-          tr("<b>Google connection error: </b>") + calendarService->getError());
+        QMessageBox::information(this,
+                                 tr("Calendar Gadget"),
+                                 tr("<b>OAuth2 code exchange error: </b>") + googleService->getLoginError());
       }
     }
   }
   else
   {
-    QMessageBox::information(this, tr("Calendar Gadget"),
-      tr("<b>Calendar Gadget</b> requires SSL support \r\n") +
-      tr("to connect with Google!"));
+    QMessageBox::information(this,
+                             tr("Calendar Gadget"),
+                             tr("<b>Calendar Gadget</b> requires SSL support \r\n") +
+                             tr("to connect with Google!"));
   }
- 
+
   daysTable->displayDate(displayDate);
 }
 
@@ -325,14 +319,14 @@ Shows the about dialog.
 void Calendar::showAbout()
 {
   QMessageBox::about(this, tr("About Calendar Gadget"),
-    tr("<b>Calendar Gadget</b> version ")  + APP_VERSION +
-    tr("<p>Developed using <a href=\"http://qt-project.org\">Qt ")
-       + qVersion() + tr(" framework</a>.</p>"
-       "<p>Email : <a href=\"mailto:bdmihai@gmail.com\">bdmihai@gmail.com</a></p>"));
+                     tr("<b>Calendar Gadget</b> version ")  + APP_VERSION +
+                     tr("<p>Developed using <a href=\"http://www.qt.io\">Qt ")
+                     + qVersion() + tr(" framework</a>.</p>"
+                                       "<p>Email : <a href=\"mailto:bdmihai@gmail.com\">bdmihai@gmail.com</a></p>"));
 }
 
 /*!
-Update the "Today" button text. At midnight update the display to the current 
+Update the "Today" button text. At midnight update the display to the current
 date.
 */
 void Calendar::updateCurrent()
@@ -345,11 +339,11 @@ void Calendar::updateCurrent()
   currentTime = QTime::currentTime();
 
   todayString = QString("<font size=\"4\" color=\"black\" face=\"Verdana\">%1, %2 %3, %4 %5</font></color>").
-    arg(QDate::longDayName(currentDate.dayOfWeek())).
-    arg(QDate::longMonthName(currentDate.month())).
-    arg(currentDate.day()).
-    arg(currentDate.year()).
-    arg(currentTime.toString("h:mm AP"));
+                arg(QDate::longDayName(currentDate.dayOfWeek())).
+                arg(QDate::longMonthName(currentDate.month())).
+                arg(currentDate.day()).
+                arg(currentDate.year()).
+                arg(currentTime.toString("h:mm AP"));
 
   todayButton->setText(todayString);
 
@@ -359,7 +353,7 @@ void Calendar::updateCurrent()
 }
 
 /*!
-Update the display. 
+Update the display.
 */
 void Calendar::updateDisplay()
 {
@@ -369,10 +363,10 @@ void Calendar::updateDisplay()
   QDate   firstDate;
 
   monthText = QString("<font size=\"5\" color=\"black\" face=\"Verdana\">%1</font></color>").
-    arg(QDate::longMonthName(displayDate.month()));
+              arg(QDate::longMonthName(displayDate.month()));
 
   yearText = QString("<font size=\"5\" color=\"black\" face=\"Verdana\">%1</font></color>").
-    arg(displayDate.year());
+             arg(displayDate.year());
 
   currentMonth->setText(monthText);
   currentYear->setText(yearText);

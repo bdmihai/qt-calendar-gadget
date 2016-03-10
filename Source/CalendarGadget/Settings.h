@@ -37,23 +37,19 @@ class Settings : public QSettings
     QPoint getPosition();
     void setSize(const QSize &newSize);
     QSize getSize();
-    void setPassword(const QString &newPassword);
-    QString getPassword();
-    void setUsername(const QString &newUsername);
-    QString getUsername();
-    bool isRemembered();
-    void setRemembered(bool newRemembered);
-    void setProxyType(QNetworkProxy::ProxyType type);
-    QNetworkProxy::ProxyType getProxyType();
-    void setProxyAddress(const QString &address);
-    QString getProxyAddress();
-    void setProxyPort(quint16 port);
-    quint16 getProxyPort();
+
+    QString getRefreshToken();
+    void setRefreshToken(const QString &newRefreshToken);
+
+    QString getClientId();
+    QString getClientSecret();
 
   private:
     void setDefault();
     QString encript(const QString &text);
     QString decrypt(const QString &text);
 };
+
+extern Settings settings;
 
 #endif

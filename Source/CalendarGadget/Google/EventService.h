@@ -19,39 +19,39 @@
 **
 ****************************************************************************/
 
-#ifndef CALENDARSERVICE_H
-#define CALENDARSERVICE_H
+#ifndef EVENTSERVICE_H
+#define EVENTSERVICE_H
 
 #include "AuthService.h"
-#include "CalendarItem.h"
+#include "EventItem.h"
 
 /*!
 This class represents the calendar service necessary for accessing the
-calendars from the google calendar. The necessary documentation for using this
+events from the google calendar. The necessary documentation for using this
 service can be found at Google: https://developers.google.com/google-apps/calendar/
 */
-class CalendarService : public QObject
+class EventService : public QObject
 {
     Q_OBJECT
 
   public:
-    CalendarService(QObject *parent, AuthService *auth);
-    virtual ~CalendarService();
+    EventService(QObject *parent, AuthService *auth);
+    virtual ~EventService();
 
   signals:
     void error(const QString &error);
-    void calendarAvailable(CalendarItem calendarItem);
-    void getNextCalendars(const QString &pageToken);
+    void eventAvailable(EventItem eventItems);
+    void getNextEvents(const QString &calendarId, const QString &start, const QString &end, const QString &pageToken);
 
   public slots:
-    void getCalendars(const QString &pageToken = "");
+    void getEvents(const QString &calendarId, const QString &start, const QString &end, const QString &pageToken = "");
 
   protected slots:
-    void getCalendarsFinished(QNetworkReply *reply);
+    void getEventsFinished(QNetworkReply *reply);
 
   protected:
     QNetworkAccessManager netAccMan;
     AuthService *auth;
 };
 
-#endif
+#endif // EVENTSERVICE_H

@@ -235,7 +235,7 @@ void Button::paintEvent(QPaintEvent *event)
   painter.setPen(pen);
   painter.setBrush(linearGradient);
   drawRect = QRect(rect().x(), rect().y(), rect().width()-1, rect().height()-1);
-  painter.drawRoundedRect(drawRect, 2, 2, Qt::AbsoluteSize);
+  painter.drawRect(drawRect);
 
   painter.drawPixmap((width()-buttonPixmap.size().width())/2.0,
     (height()-buttonPixmap.size().height())/2.0, 

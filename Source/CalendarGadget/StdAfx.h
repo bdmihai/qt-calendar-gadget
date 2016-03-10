@@ -24,6 +24,7 @@
 #include <QtGui>
 #include <QtWidgets>
 #include <QtNetwork>
+#include <QtWebKitWidgets>
 
 // include the windows definitions
 #include <windows.h>

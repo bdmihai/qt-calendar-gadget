@@ -1,20 +1,20 @@
 /****************************************************************************
 **
-** Copyright (C) 2010-2011 B.D. Mihai.
+** Copyright (C) 2010-2016 B.D. Mihai.
 **
 ** This file is part of CalendarGadget.
 **
-** CalendarGadget is free software: you can redistribute it and/or modify it 
-** under the terms of the GNU Lesser Public License as published by the Free 
-** Software Foundation, either version 3 of the License, or (at your option) 
+** CalendarGadget is free software: you can redistribute it and/or modify it
+** under the terms of the GNU Lesser Public License as published by the Free
+** Software Foundation, either version 3 of the License, or (at your option)
 ** any later version.
 **
-** CalendarGadget is distributed in the hope that it will be useful, but 
-** WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY 
-** or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser Public License for 
+** CalendarGadget is distributed in the hope that it will be useful, but
+** WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+** or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser Public License for
 ** more details.
 **
-** You should have received a copy of the GNU Lesser Public License along 
+** You should have received a copy of the GNU Lesser Public License along
 ** with CalendarGadget.  If not, see http://www.gnu.org/licenses/.
 **
 ****************************************************************************/
@@ -25,10 +25,10 @@
 #include "Widgets\Calendar.h"
 
 //! The application settings.
-Settings settings("Settings.ini");
+Settings settings(QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation) + "/" + APP_NAME + "/" + "Settings.ini");
 
 /*!
-This is the main entry point for the application. It shows the main window and 
+This is the main entry point for the application. It shows the main window and
 starts the application main message loop.
 */
 int main(int argc, char *argv[])
@@ -40,6 +40,9 @@ int main(int argc, char *argv[])
   app.setOrganizationName(APP_COMPANY);
   app.setOrganizationDomain(APP_DOMAIN);
   app.setApplicationVersion(APP_VERSION);
+
+  // detect the system proxy settings - might take a bit of time
+  QNetworkProxyFactory::setUseSystemConfiguration(true);
 
   // show the main window
   Calendar calendar;

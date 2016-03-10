@@ -19,19 +19,18 @@
 **
 ****************************************************************************/
 
-#ifndef DEFINES_H
-#define DEFINES_H
+#ifndef CALENDARITEM_H
+#define CALENDARITEM_H
 
-//! Application version
-#define APP_VERSION     "1.2.0"
+class CalendarItem
+{
+  public:
+    CalendarItem(const QJsonObject &jsonObject);
+    virtual ~CalendarItem();
 
-//! Application name
-#define APP_NAME        "CalendarGadget"
+  public:
+    QString id;
+    QString summary;
+};
 
-//! Application company
-#define APP_COMPANY     "Home"
-
-//! Application company
-#define APP_DOMAIN      "https://github.com/bdmihai/qt-calendar-gadget"
-
-#endif
+#endif // CALENDARITEM_H

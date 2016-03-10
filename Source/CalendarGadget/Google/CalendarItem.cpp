@@ -19,19 +19,21 @@
 **
 ****************************************************************************/
 
-#ifndef DEFINES_H
-#define DEFINES_H
+#include "StdAfx.h"
+#include "CalendarItem.h"
 
-//! Application version
-#define APP_VERSION     "1.2.0"
+/*!
+Create a new instance of the CalendarItem using the json object.
+*/
+CalendarItem::CalendarItem(const QJsonObject &jsonObject)
+{
+  id = jsonObject["id"].toString();
+  summary = jsonObject["summary"].toString();
+}
 
-//! Application name
-#define APP_NAME        "CalendarGadget"
-
-//! Application company
-#define APP_COMPANY     "Home"
-
-//! Application company
-#define APP_DOMAIN      "https://github.com/bdmihai/qt-calendar-gadget"
-
-#endif
+/*!
+Clean up.
+*/
+CalendarItem::~CalendarItem()
+{
+}

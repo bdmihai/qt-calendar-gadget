@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2010-2011 B.D. Mihai.
+** Copyright (C) 2010-2016 B.D. Mihai.
 **
 ** This file is part of CalendarGadget.
 **
@@ -22,142 +22,60 @@
 #include "StdAfx.h"
 #include "ConnectDialog.h"
 
+/*! Create a new instance of the ConnectDialog class. */
 ConnectDialog::ConnectDialog(QWidget *parent) : QDialog(parent)
 {
+  authCode = "";
   createLayout();
 }
 
+/*! Clean up. */
 ConnectDialog::~ConnectDialog()
 {
-
 }
 
+/*! Create the layout and connections for the dialog. */
 void ConnectDialog::createLayout()
 {
   QVBoxLayout *mainLayout = new QVBoxLayout();
-  QVBoxLayout *vLayout;
-  QGridLayout *gridLayout;
-  QRadioButton *radioButton;
-  QGroupBox *groupBox;
-  QValidator *validator;
-
-  //create the input fields
-  gridLayout = new QGridLayout();
-  usernameEdit = new QLineEdit();
-  passwordEdit = new QLineEdit();
-  passwordEdit->setEchoMode(QLineEdit::Password);
-
-  gridLayout->addWidget(new QLabel(tr("Username:")), 0, 0);
-  gridLayout->addWidget(new QLabel(tr("Password:")), 1, 0);
-  gridLayout->addWidget(usernameEdit, 0, 1);
-  gridLayout->addWidget(passwordEdit, 1, 1);
-  mainLayout->addLayout(gridLayout);
-
-  // remember the login data
-  rememberCheck = new QCheckBox(tr("Remember me"));
-  mainLayout->addWidget(rememberCheck);
-
-  // proxy type settings
-  groupBox = new QGroupBox(tr("Proxy settings"));
-  vLayout = new QVBoxLayout();
-  proxyTypeGroup = new QButtonGroup();
-  proxyTypeGroup->addButton(radioButton = new QRadioButton("No Proxy"), QNetworkProxy::NoProxy);
-  radioButton->setChecked(true);
-  vLayout->addWidget(radioButton);
-  proxyTypeGroup->addButton(radioButton = new QRadioButton("Socks5 Proxy"), QNetworkProxy::Socks5Proxy);
-  vLayout->addWidget(radioButton);
-  proxyTypeGroup->addButton(radioButton = new QRadioButton("Http Proxy"), QNetworkProxy::HttpProxy);
-  vLayout->addWidget(radioButton);
-
-  // proxy address and port
-  gridLayout = new QGridLayout();
-  proxyAddressEdit = new QLineEdit();
-  proxyPortEdit = new QLineEdit();
-  validator = new QIntValidator(0, 65535, this);
-  proxyPortEdit->setValidator(validator);
-
-  gridLayout->addWidget(new QLabel(tr("Address:")), 0, 0);
-  gridLayout->addWidget(new QLabel(tr("Port:")), 1, 0);
-  gridLayout->addWidget(proxyAddressEdit, 0, 1);
-  gridLayout->addWidget(proxyPortEdit, 1, 1);
-  vLayout->addLayout(gridLayout);
-
-  groupBox->setLayout(vLayout);
-  mainLayout->addWidget(groupBox);
-
-  // create the dialog buttons
-  dialogButtonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel,
-    Qt::Horizontal);
-  connect(dialogButtonBox, SIGNAL(accepted()), this, SLOT(accept()));
-  connect(dialogButtonBox, SIGNAL(rejected()), this, SLOT(reject()));
-  mainLayout->addStretch();
-  mainLayout->addWidget(dialogButtonBox);
+  mainLayout->setContentsMargins(0, 0, 0, 0);
+  
+  webView = new QWebView(this);
+  webView->setZoomFactor(0.8);
+  connect(webView, SIGNAL(titleChanged(const QString &)), this, SLOT(titleChanged(const QString &)));
+  mainLayout->addWidget(webView);
 
   // set the layout
   setLayout(mainLayout);
   setWindowTitle(tr("Connect to Google"));
   setWindowFlags(windowFlags() &~ Qt::WindowContextHelpButtonHint );
-  setMinimumWidth (250);
+  setMinimumSize(360, 500);
+  setMaximumSize(360, 500);
 }
 
-void ConnectDialog::setUsername(const QString &userName)
+/*! Set the connection url. */
+void ConnectDialog::setAuthRequestUrl(const QUrl &url)
 {
-  usernameEdit->setText(userName);
+  webView->setUrl(url);
 }
 
-QString ConnectDialog::getUsername()
+/*! Get the authentication code returned by Google. */
+QString ConnectDialog::getAuthCode()
 {
-  return usernameEdit->text();
+  return authCode;
 }
 
-void ConnectDialog::setPassword(const QString &password)
+/*! Monitor the page title change and in case the title is formated as a valid
+response for authentication retrieve the code and accept the dialog. */
+void ConnectDialog::titleChanged(const QString &title)
 {
-  passwordEdit->setText(password);
-}
+  // split the title on first '=' sign
+  QString key = title.left(title.indexOf('=')).trimmed();
 
-QString ConnectDialog::getPassword()
-{
-  return passwordEdit->text();
-}
-
-bool ConnectDialog::isRemembered()
-{
-  return rememberCheck->isChecked();
-}
-
-void ConnectDialog::setRemembered(bool remembered)
-{
-  rememberCheck->setChecked(remembered);
-}
-
-void ConnectDialog::setProxyType(QNetworkProxy::ProxyType type)
-{
-  QAbstractButton *button = proxyTypeGroup->button(type);
-  if (button != 0)
-    button->setChecked(true);
-}
-
-QNetworkProxy::ProxyType ConnectDialog::getProxyType()
-{
-  return (QNetworkProxy::ProxyType)proxyTypeGroup->checkedId();
-}
-
-void ConnectDialog::setProxyAddress(const QString &address)
-{
-  proxyAddressEdit->setText(address);
-}
-
-QString ConnectDialog::getProxyAddress()
-{
-  return proxyAddressEdit->text();
-}
-
-void ConnectDialog::setProxyPort(quint16 port)
-{
-  proxyPortEdit->setText(QString::number(port));
-}
-
-quint16 ConnectDialog::getProxyPort()
-{
-  return proxyPortEdit->text().toUInt();
+  if (key == "Success code")
+  {
+    QString value = title.right(title.length() - title.indexOf('=') - 1).trimmed();
+    authCode = value;
+    QDialog::accept();
+  }
 }

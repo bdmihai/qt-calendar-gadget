@@ -19,19 +19,34 @@
 **
 ****************************************************************************/
 
-#ifndef DEFINES_H
-#define DEFINES_H
+#include "StdAfx.h"
+#include "EventItem.h"
 
-//! Application version
-#define APP_VERSION     "1.2.0"
+EventItem::EventItem(const QJsonObject &jsonObject)
+{
+  id = jsonObject["id"].toString();
+  summary = jsonObject["summary"].toString();
 
-//! Application name
-#define APP_NAME        "CalendarGadget"
+  if (jsonObject["start"].toObject().contains("date"))
+  {
+    start = jsonObject["start"].toObject().value("date").toVariant().toDateTime();
+    allDayEvent = true;
+  }
+  else
+  {
+    allDayEvent = false;
+  }
 
-//! Application company
-#define APP_COMPANY     "Home"
+  if (jsonObject["start"].toObject().contains("dateTime"))
+    start = jsonObject["start"].toObject().value("dateTime").toVariant().toDateTime();
 
-//! Application company
-#define APP_DOMAIN      "https://github.com/bdmihai/qt-calendar-gadget"
+  if (jsonObject["end"].toObject().contains("date"))
+    end = jsonObject["end"].toObject().value("date").toVariant().toDateTime();
 
-#endif
+  if (jsonObject["end"].toObject().contains("dateTime"))
+    end = jsonObject["end"].toObject().value("dateTime").toVariant().toDateTime();
+}
+
+EventItem::~EventItem()
+{
+}

@@ -19,39 +19,50 @@
 **
 ****************************************************************************/
 
-#ifndef CALENDARSERVICE_H
-#define CALENDARSERVICE_H
+#ifndef GOOGLESERVICE_H
+#define GOOGLESERVICE_H
 
 #include "AuthService.h"
-#include "CalendarItem.h"
+#include "CalendarService.h"
+#include "EventService.h"
 
 /*!
 This class represents the calendar service necessary for accessing the
-calendars from the google calendar. The necessary documentation for using this
+data from the google calendar. The necessary documentation for using this
 service can be found at Google: https://developers.google.com/google-apps/calendar/
 */
-class CalendarService : public QObject
+class GoogleService : public QObject
 {
     Q_OBJECT
 
   public:
-    CalendarService(QObject *parent, AuthService *auth);
-    virtual ~CalendarService();
+    GoogleService(QObject *parent);
+    virtual ~GoogleService();
+
+    bool isServiceAvailable();
+    QUrl getAuthRequestUrl();
+    QString getLoginError();
+    QStringList getErrors();
 
   signals:
-    void error(const QString &error);
-    void calendarAvailable(CalendarItem calendarItem);
-    void getNextCalendars(const QString &pageToken);
+    void eventAvailable(EventItem eventItem);
 
   public slots:
-    void getCalendars(const QString &pageToken = "");
+    bool login(const QString &code);
+    void getEvents(const QDateTime &start, const QDateTime &end);
 
-  protected slots:
-    void getCalendarsFinished(QNetworkReply *reply);
+  private slots:
+    void onCalendarAvailable(CalendarItem calendarItem);
+    void onEventAvailable(EventItem eventItem);
+    void onError(const QString &error);
 
-  protected:
-    QNetworkAccessManager netAccMan;
-    AuthService *auth;
+  private:
+    AuthService authService;
+    CalendarService calendarService;
+    EventService eventService;
+    QDateTime start;
+    QDateTime end;
+    QStringList errors;
 };
 
-#endif
+#endif // GOOGLESERVICE_H

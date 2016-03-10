@@ -20,71 +20,79 @@
 ****************************************************************************/
 
 #include "StdAfx.h"
-#include "CalendarService.h"
+#include "EventService.h"
 
 /*!
-Create a new instance of the CalendarService class.
+Create a new instance of the EventService class.
 */
-CalendarService::CalendarService(QObject *parent, AuthService *auth) :
-  QObject(parent),
-  netAccMan(parent)
+EventService::EventService(QObject *parent, AuthService *auth) : QObject(parent)
 {
   this->auth = auth;
 
   connect(&netAccMan, SIGNAL(finished(QNetworkReply *)),
-          this, SLOT(getCalendarsFinished(QNetworkReply *)));
-  connect(this, SIGNAL(getNextCalendars(const QString &)),
-          this, SLOT(getCalendars(const QString &)), Qt::QueuedConnection);
+          this, SLOT(getEventsFinished(QNetworkReply *)));
+  connect(this, SIGNAL(getNextEvents(const QString &, const QString &, const QString &, const QString &)),
+          this, SLOT(getEvents(const QString &, const QString &, const QString &, const QString &)), Qt::QueuedConnection);
 }
 
 /*!
 Clean up.
 */
-CalendarService::~CalendarService()
+EventService::~EventService()
 {
 }
 
 /*!
-Get the calendars from Google.
-/param pageToken Next page token for handling more calendars.
+Get the events from Google.
+/param pageToken Next page token for handling more events.
 */
-void CalendarService::getCalendars(const QString &pageToken)
+void EventService::getEvents(const QString &calendarId, const QString &start, const QString &end, const QString &pageToken)
 {
   /*! This endpoint returns entries on the user's calendar list.*/
-  const QString endpoint = "https://www.googleapis.com/calendar/v3/users/me/calendarList";
+  const QString endpoint = "https://www.googleapis.com/calendar/v3/calendars/%1/events";
 
-  /*! Maximum number of entries returned on one result page. By default the
-  value is 100 entries. The page size can never be larger than 250 entries.
+  /*! Maximum number of events returned on one result page. By default the
+  value is 250 events. The page size can never be larger than 2500 events.
   Optional. (integer, 1+) */
   const QString maxResults = "200";
 
   /*! Selector specifying which fields to include in a partial response. */
-  const QString fields = "items(description,id,summary),nextPageToken";
+  const QString fields = "items(id,summary,start,end),nextPageToken";
+
+  /*! Whether to expand recurring events into instances and only return single
+  one-off events and instances of recurring events, but not the underlying
+  recurring events themselves. Optional. The default is False. (boolean) */
+  const QString singleEvents = "true";
 
   // build up the query for url
   QUrlQuery urlQuery;
   urlQuery.addQueryItem("maxResults", maxResults);
   urlQuery.addQueryItem("fields", fields);
+  urlQuery.addQueryItem("singleEvents", singleEvents);
+  urlQuery.addQueryItem("timeMin", start);
+  urlQuery.addQueryItem("timeMax", end);
   if (pageToken != "")
     urlQuery.addQueryItem("pageToken", pageToken);
 
   // build up the url for the request
-  QUrl url(endpoint);
+  QUrl url(QString(endpoint).arg(QString(QUrl::toPercentEncoding(calendarId))));
   url.setQuery(urlQuery);
+
+  QString urlStr = url.toString();
 
   // set-up the request
   QNetworkRequest request = QNetworkRequest();
   request.setUrl(url);
   request.setRawHeader(QByteArray("Authorization"), QByteArray("Bearer ") + auth->getAccessToken().toLatin1());
 
-  // get calendars request
+  // get events request
   netAccMan.get(request);
 }
 
 /*!
 Parse the received data.
 */
-void CalendarService::getCalendarsFinished(QNetworkReply *reply)
+void EventService::getEventsFinished(QNetworkReply *reply)
 {
   if (!reply->error())
   {
@@ -98,15 +106,21 @@ void CalendarService::getCalendarsFinished(QNetworkReply *reply)
       QJsonArray jsonItems = jsonObject["items"].toArray();
       foreach(const QJsonValue value, jsonItems)
       {
-        CalendarItem calendarItem(value.toObject());
-        emit calendarAvailable(calendarItem);
+        EventItem eventItem(value.toObject());
+        emit eventAvailable(eventItem);
       }
 
       QJsonValue value = jsonObject["nextPageToken"];
       if (value.isString())
       {
         QString nextPageToken = value.toString();
-        emit getNextCalendars(nextPageToken);
+        QNetworkRequest request = reply->request();
+        QUrl url = request.url();
+        QUrlQuery urlQuery = QUrlQuery(url.query());
+        QString calendarId = url.path();
+        calendarId.replace("/calendar/v3/calendars/", "");
+        calendarId.replace("/events", "");
+        emit getNextEvents(calendarId, urlQuery.queryItemValue("timeMin"), urlQuery.queryItemValue("timeMax"), nextPageToken);
       }
     }
     else
@@ -120,5 +134,4 @@ void CalendarService::getCalendarsFinished(QNetworkReply *reply)
   }
 
   reply->deleteLater();
-  reply = 0;
 }

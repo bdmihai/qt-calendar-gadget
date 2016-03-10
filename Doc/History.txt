@@ -39,8 +39,15 @@ Version 1.0.7
 TODO:
 - *
 ********************************************************************************
-Version 1.0.7
+Version 1.1.0
 - New popup widget with same style instead of QMenu for year/month selection
+- Missing day bug fix when selecting a month
+TODO:
+- *
+********************************************************************************
+Version 1.2.0
+- Google OAuth2 implemented
+- New Google calendar API implemented
 TODO:
 - *
 ********************************************************************************

@@ -2,9 +2,9 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "Calendar Gadget"
-#define MyAppVersion "1.0.7"
+#define MyAppVersion "1.2.0"
 #define MyAppPublisher "Home"
-#define MyAppURL "http://www.codeproject.com/KB/gadgets/CalendarGadget.aspx"
+#define MyAppURL "https://github.com/bdmihai/qt-calendar-gadget"
 #define MyAppExeName "CalendarGadget.exe"
 
 [Setup]
@@ -24,12 +24,12 @@ DefaultGroupName={#MyAppName}
 AllowNoIcons=true
 LicenseFile=..\Doc\LICENSE.rtf
 ;InfoBeforeFile=D:\Work\CPlusPlus\Projects\CalendarGadget\Doc\LICENSE.rtf
-OutputDir=d:\Work\CPlusPlus\Projects\CalendarGadget\Setup\
+OutputDir=.\
 OutputBaseFilename=CalendarGadgetSetup
 Compression=lzma/Max
 SolidCompression=true
 ShowLanguageDialog=no
-AppCopyright=Copyright (C) 2010-2011 B.D. Mihai.
+AppCopyright=Copyright (C) 2010-2016 B.D. Mihai.
 SetupIconFile=Setup.ico
 WizardImageFile=WizModernImage-IS.bmp
 WizardSmallImageFile=SmallImage.bmp
@@ -42,17 +42,29 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 
 [Files]
 Source: "..\Source\Release\CalendarGadget.exe"; DestDir: "{app}"; Flags: ignoreversion
-Source: "..\Source\CalendarGadget\Settings.ini"; DestDir: "{app}"; Flags: ignoreversion
-Source: "..\..\..\Libraries\Qt\4.7.1\bin\QtCore4.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "..\..\..\Libraries\Qt\4.7.1\bin\QtGui4.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "..\..\..\Libraries\Qt\4.7.1\bin\QtNetwork4.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "..\..\..\Libraries\OpenSSL-Win32\bin\libeay32.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "..\..\..\Libraries\OpenSSL-Win32\bin\ssleay32.dll"; DestDir: "{app}"; Flags: ignoreversion
+; Qt files
+Source: "..\..\..\Libraries\Qt5\5.5\msvc2013\bin\Qt5Core.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\..\..\Libraries\Qt5\5.5\msvc2013\bin\Qt5Gui.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\..\..\Libraries\Qt5\5.5\msvc2013\bin\Qt5Multimedia.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\..\..\Libraries\Qt5\5.5\msvc2013\bin\Qt5MultimediaWidgets.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\..\..\Libraries\Qt5\5.5\msvc2013\bin\Qt5Network.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\..\..\Libraries\Qt5\5.5\msvc2013\bin\Qt5OpenGL.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\..\..\Libraries\Qt5\5.5\msvc2013\bin\Qt5Positioning.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\..\..\Libraries\Qt5\5.5\msvc2013\bin\Qt5PrintSupport.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\..\..\Libraries\Qt5\5.5\msvc2013\bin\Qt5Qml.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\..\..\Libraries\Qt5\5.5\msvc2013\bin\Qt5Quick.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\..\..\Libraries\Qt5\5.5\msvc2013\bin\Qt5Sensors.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\..\..\Libraries\Qt5\5.5\msvc2013\bin\Qt5Sql.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\..\..\Libraries\Qt5\5.5\msvc2013\bin\Qt5WebChannel.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\..\..\Libraries\Qt5\5.5\msvc2013\bin\Qt5WebKit.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\..\..\Libraries\Qt5\5.5\msvc2013\bin\Qt5WebKitWidgets.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\..\..\Libraries\Qt5\5.5\msvc2013\bin\Qt5Widgets.dll"; DestDir: "{app}"; Flags: ignoreversion
+; OpenSSL
+Source: "C:\Program Files (x86)\OpenSSL\bin\libeay32.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\Program Files (x86)\OpenSSL\bin\ssleay32.dll"; DestDir: "{app}"; Flags: ignoreversion
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
-Source: "C:\Program Files (x86)\Microsoft Visual Studio 9.0\VC\redist\x86\Microsoft.VC90.CRT\Microsoft.VC90.CRT.manifest"; DestDir: {app}; Flags: IgnoreVersion; 
-Source: "C:\Program Files (x86)\Microsoft Visual Studio 9.0\VC\redist\x86\Microsoft.VC90.CRT\msvcm90.dll"; DestDir: {app}; Flags: IgnoreVersion; 
-Source: "C:\Program Files (x86)\Microsoft Visual Studio 9.0\VC\redist\x86\Microsoft.VC90.CRT\msvcp90.dll"; DestDir: {app}; Flags: IgnoreVersion; 
-Source: "C:\Program Files (x86)\Microsoft Visual Studio 9.0\VC\redist\x86\Microsoft.VC90.CRT\msvcr90.dll"; DestDir: {app}; Flags: IgnoreVersion; 
+Source: "C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\redist\x86\Microsoft.VC120.CRT\msvcp120.dll"; DestDir: {app}; Flags: IgnoreVersion; 
+Source: "C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\redist\x86\Microsoft.VC120.CRT\msvcr120.dll"; DestDir: {app}; Flags: IgnoreVersion; 
 
 [Icons]
 Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"

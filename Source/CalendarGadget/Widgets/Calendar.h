@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2010-2011 B.D. Mihai.
+** Copyright (C) 2010-2016 B.D. Mihai.
 **
 ** This file is part of CalendarGadget.
 **
@@ -27,7 +27,7 @@
 #include "Button.h"
 #include "DropDown.h"
 
-#include "..\Google\CalendarService.h"
+#include "..\Google\GoogleService.h"
 
 /*!
 This represents the main window for the application.
@@ -42,6 +42,7 @@ class Calendar : public Gadget
 
   protected:
     void createLayout();
+    virtual void showEvent(QShowEvent * event);
     virtual void closeEvent(QCloseEvent *event);
 
   protected slots:
@@ -72,7 +73,7 @@ class Calendar : public Gadget
     QTime  currentTime;
     QDate  displayDate;
 
-    CalendarService *calendarService;
+    GoogleService *googleService;
 };
 
 #endif

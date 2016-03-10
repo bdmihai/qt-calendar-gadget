@@ -1,20 +1,20 @@
 /****************************************************************************
 **
-** Copyright (C) 2010-2011 B.D. Mihai.
+** Copyright (C) 2010-2016 B.D. Mihai.
 **
 ** This file is part of CalendarGadget.
 **
-** CalendarGadget is free software: you can redistribute it and/or modify it 
-** under the terms of the GNU Lesser Public License as published by the Free 
-** Software Foundation, either version 3 of the License, or (at your option) 
+** CalendarGadget is free software: you can redistribute it and/or modify it
+** under the terms of the GNU Lesser Public License as published by the Free
+** Software Foundation, either version 3 of the License, or (at your option)
 ** any later version.
 **
-** CalendarGadget is distributed in the hope that it will be useful, but 
-** WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY 
-** or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser Public License for 
+** CalendarGadget is distributed in the hope that it will be useful, but
+** WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+** or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser Public License for
 ** more details.
 **
-** You should have received a copy of the GNU Lesser Public License along 
+** You should have received a copy of the GNU Lesser Public License along
 ** with CalendarGadget.  If not, see http://www.gnu.org/licenses/.
 **
 ****************************************************************************/
@@ -43,7 +43,7 @@ This function creates the layout and components of the widget.
 */
 void DaysTable::createLayout()
 {
-  QVBoxLayout *mainLayout = new QVBoxLayout(); 
+  QVBoxLayout *mainLayout = new QVBoxLayout();
   QGridLayout *daysLayout = new QGridLayout();
 
   viewport = new QWidget();
@@ -52,7 +52,7 @@ void DaysTable::createLayout()
   for (int i = 1; i < 8; i++ )
   {
     QString weekDayText = QString("<b><font size=\"4\" color=\"black\" face=\"Verdana\">%1</font></color></b>").
-      arg(QDate::shortDayName(i));
+                          arg(QDate::shortDayName(i));
 
     Token *label = new Token(this);
     label->setAlignment(Qt::AlignCenter);
@@ -119,11 +119,11 @@ void DaysTable::animateLeft()
 
   if (animationGroup->state() != QAbstractAnimation::Running)
   {
-    animation = dynamic_cast<QPropertyAnimation*>(animationGroup->animationAt(0));
+    animation = dynamic_cast<QPropertyAnimation *>(animationGroup->animationAt(0));
     animation->setStartValue(viewport->geometry());
     animation->setEndValue(viewport->geometry().adjusted(viewport->geometry().width(),0,viewport->geometry().width(),0));
 
-    animation = dynamic_cast<QPropertyAnimation*>(animationGroup->animationAt(1));
+    animation = dynamic_cast<QPropertyAnimation *>(animationGroup->animationAt(1));
     animation->setStartValue(viewport->geometry().adjusted(-viewport->geometry().width(),0,-viewport->geometry().width(),0));
     animation->setEndValue(viewport->geometry());
 
@@ -140,11 +140,11 @@ void DaysTable::animateRight()
 
   if (animationGroup->state() != QAbstractAnimation::Running)
   {
-    animation = dynamic_cast<QPropertyAnimation*>(animationGroup->animationAt(0));
+    animation = dynamic_cast<QPropertyAnimation *>(animationGroup->animationAt(0));
     animation->setStartValue(viewport->geometry());
     animation->setEndValue(viewport->geometry().adjusted(-viewport->geometry().width(),0,-viewport->geometry().width(),0));
 
-    animation = dynamic_cast<QPropertyAnimation*>(animationGroup->animationAt(1));
+    animation = dynamic_cast<QPropertyAnimation *>(animationGroup->animationAt(1));
     animation->setStartValue(viewport->geometry().adjusted(viewport->geometry().width(),0,viewport->geometry().width(),0));
     animation->setEndValue(viewport->geometry());
 
@@ -161,11 +161,11 @@ void DaysTable::animateBottom()
 
   if (animationGroup->state() != QAbstractAnimation::Running)
   {
-    animation = dynamic_cast<QPropertyAnimation*>(animationGroup->animationAt(0));
+    animation = dynamic_cast<QPropertyAnimation *>(animationGroup->animationAt(0));
     animation->setStartValue(viewport->geometry());
     animation->setEndValue(viewport->geometry().adjusted(0,-viewport->geometry().height(),0,-viewport->geometry().height()));
 
-    animation = dynamic_cast<QPropertyAnimation*>(animationGroup->animationAt(1));
+    animation = dynamic_cast<QPropertyAnimation *>(animationGroup->animationAt(1));
     animation->setStartValue(viewport->geometry().adjusted(0,viewport->geometry().height(),0,viewport->geometry().height()));
     animation->setEndValue(viewport->geometry());
 
@@ -182,11 +182,11 @@ void DaysTable::animateTop()
 
   if (animationGroup->state() != QAbstractAnimation::Running)
   {
-    animation = dynamic_cast<QPropertyAnimation*>(animationGroup->animationAt(0));
+    animation = dynamic_cast<QPropertyAnimation *>(animationGroup->animationAt(0));
     animation->setStartValue(viewport->geometry());
     animation->setEndValue(viewport->geometry().adjusted(0,viewport->geometry().height(),0,viewport->geometry().height()));
 
-    animation = dynamic_cast<QPropertyAnimation*>(animationGroup->animationAt(1));
+    animation = dynamic_cast<QPropertyAnimation *>(animationGroup->animationAt(1));
     animation->setStartValue(viewport->geometry().adjusted(0,-viewport->geometry().height(),0,-viewport->geometry().height()));
     animation->setEndValue(viewport->geometry());
 
@@ -206,10 +206,10 @@ void DaysTable::displayDate(QDate date)
   QDate   firstDate;
 
   monthText = QString("<font size=\"5\" color=\"black\" face=\"Verdana\">%1</font></color>").
-    arg(QDate::longMonthName(date.month()));
+              arg(QDate::longMonthName(date.month()));
 
   yearText = QString("<font size=\"5\" color=\"black\" face=\"Verdana\">%1</font></color>").
-    arg(date.year());
+             arg(date.year());
 
   firstDate.setDate(date.year(), date.month(), 1);
   firstDate = firstDate.addDays(-firstDate.dayOfWeek() + 1);
@@ -229,7 +229,7 @@ void DaysTable::displayWeekNumbers(QDate firstDate)
     QString cwText;
 
     cwText = QString("<b><font size=\"4\" color=\"black\" face=\"Verdana\">%1</font></color></b>").
-      arg(firstDate.weekNumber());
+             arg(firstDate.weekNumber());
 
     cwList[i-1]->setText(cwText);
     firstDate = firstDate.addDays(7);
@@ -239,7 +239,7 @@ void DaysTable::displayWeekNumbers(QDate firstDate)
 /*!
 This function displays the calendar days for a given date.
 \param date the date for which to show the calendar.
-\param firstDate the first date of the calendar. 
+\param firstDate the first date of the calendar.
 */
 void DaysTable::displayDays(QDate date, QDate firstDate)
 {
@@ -255,21 +255,21 @@ void DaysTable::displayDays(QDate date, QDate firstDate)
     }
   }
 
-  emit requestEvents(firstDate, firstDate.addDays(42));
+  emit requestEvents(QDateTime(firstDate), QDateTime(firstDate.addDays(42)));
 }
 
 /*!
 This function updates the calendar with the events information.
 \param events the events to be displayed.
 */
-void DaysTable::displayEvents(EventList events)
+void DaysTable::displayEvent(EventItem eventItem)
 {
-  for (int i = 1; i < 7; i++ )
+  for (int i = 1; i < 7; i++)
   {
-    for (int j = 1; j < 8; j++ )
+    for (int j = 1; j < 8; j++)
     {
-      int index = (i-1) * 7 + (j-1);
-      daysList[index]->setEvents(events);
+      int index = (i - 1) * 7 + (j - 1);
+      daysList[index]->setEvent(eventItem);
     }
   }
 }

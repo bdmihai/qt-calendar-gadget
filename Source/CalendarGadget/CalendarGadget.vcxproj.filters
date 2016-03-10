@@ -1,0 +1,146 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="Google\AuthService.cpp" />
+    <ClCompile Include="Widgets\Button.cpp" />
+    <ClCompile Include="Widgets\Calendar.cpp" />
+    <ClCompile Include="Google\CalendarService.cpp" />
+    <ClCompile Include="Widgets\ConnectDialog.cpp" />
+    <ClCompile Include="Widgets\DaysTable.cpp" />
+    <ClCompile Include="Widgets\DropDown.cpp" />
+    <ClCompile Include="Widgets\DropDownPopup.cpp" />
+    <ClCompile Include="Widgets\Gadget.cpp" />
+    <ClCompile Include="Main.cpp" />
+    <ClCompile Include="Settings.cpp" />
+    <ClCompile Include="StdAfx.cpp" />
+    <ClCompile Include="Widgets\Token.cpp" />
+    <ClCompile Include="GeneratedFiles\qrc_CalendarGadget.cpp" />
+    <ClCompile Include="GeneratedFiles\Release\moc_AuthService.cpp" />
+    <ClCompile Include="GeneratedFiles\Release\moc_Button.cpp" />
+    <ClCompile Include="GeneratedFiles\Release\moc_Calendar.cpp" />
+    <ClCompile Include="GeneratedFiles\Release\moc_CalendarService.cpp" />
+    <ClCompile Include="GeneratedFiles\Release\moc_ConnectDialog.cpp" />
+    <ClCompile Include="GeneratedFiles\Release\moc_DaysTable.cpp" />
+    <ClCompile Include="GeneratedFiles\Release\moc_DropDown.cpp" />
+    <ClCompile Include="GeneratedFiles\Release\moc_DropDownPopup.cpp" />
+    <ClCompile Include="GeneratedFiles\Release\moc_Gadget.cpp" />
+    <ClCompile Include="GeneratedFiles\Release\moc_Settings.cpp" />
+    <ClCompile Include="GeneratedFiles\Release\moc_Token.cpp" />
+    <ClCompile Include="GeneratedFiles\Debug\moc_AuthService.cpp" />
+    <ClCompile Include="GeneratedFiles\Debug\moc_Button.cpp" />
+    <ClCompile Include="GeneratedFiles\Debug\moc_Calendar.cpp" />
+    <ClCompile Include="GeneratedFiles\Debug\moc_CalendarService.cpp" />
+    <ClCompile Include="GeneratedFiles\Debug\moc_ConnectDialog.cpp" />
+    <ClCompile Include="GeneratedFiles\Debug\moc_DaysTable.cpp" />
+    <ClCompile Include="GeneratedFiles\Debug\moc_DropDown.cpp" />
+    <ClCompile Include="GeneratedFiles\Debug\moc_DropDownPopup.cpp" />
+    <ClCompile Include="GeneratedFiles\Debug\moc_Gadget.cpp" />
+    <ClCompile Include="GeneratedFiles\Debug\moc_Settings.cpp" />
+    <ClCompile Include="GeneratedFiles\Debug\moc_Token.cpp" />
+    <ClCompile Include="Google\CalendarItem.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Google\EventItem.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Google\GoogleService.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_GoogleService.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_GoogleService.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Template\moc_GoogleService.cpp">
+      <Filter>Generated Files\Template</Filter>
+    </ClCompile>
+    <ClCompile Include="Google\EventService.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_EventService.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_EventService.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Template\moc_EventService.cpp">
+      <Filter>Generated Files\Template</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Defines.h" />
+    <ClInclude Include="StdAfx.h" />
+    <ClInclude Include="Google\CalendarItem.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Google\EventItem.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="Google\AuthService.h" />
+    <CustomBuild Include="Widgets\Button.h" />
+    <CustomBuild Include="Widgets\Calendar.h" />
+    <CustomBuild Include="Google\CalendarService.h" />
+    <CustomBuild Include="Widgets\ConnectDialog.h" />
+    <CustomBuild Include="Widgets\DaysTable.h" />
+    <CustomBuild Include="Widgets\DropDown.h" />
+    <CustomBuild Include="Widgets\DropDownPopup.h" />
+    <CustomBuild Include="Widgets\Gadget.h" />
+    <CustomBuild Include="Settings.h" />
+    <CustomBuild Include="Widgets\Token.h" />
+    <CustomBuild Include="Resources\CalendarGadget.qrc" />
+    <CustomBuild Include="Google\GoogleService.h">
+      <Filter>Header Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Google\EventService.h">
+      <Filter>Header Files</Filter>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Resources\CalendarGadget.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\About.crdoc" />
+    <None Include="Resources\AppIcon.crdoc" />
+    <None Include="Resources\AppIcon.ico" />
+    <None Include="Resources\Close.crdoc" />
+    <None Include="Resources\Google.crdoc" />
+    <None Include="Resources\Google.png" />
+    <None Include="Resources\NextMonth.crdoc" />
+    <None Include="Resources\PrevMonth.crdoc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;cxx;c;def</Extensions>
+      <ParseFiles>true</ParseFiles>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h</Extensions>
+      <ParseFiles>true</ParseFiles>
+    </Filter>
+    <Filter Include="Generated Files">
+      <UniqueIdentifier>{71ED8ED8-ACB9-4CE9-BBE1-E00B30144E11}</UniqueIdentifier>
+      <Extensions>moc;h;cpp</Extensions>
+      <ParseFiles>true</ParseFiles>
+    </Filter>
+    <Filter Include="Generated Files\Debug">
+      <UniqueIdentifier>{984e0022-5422-4a1e-8db7-f33daf47960c}</UniqueIdentifier>
+      <Extensions>cpp;moc</Extensions>
+      <SourceControlFiles>False</SourceControlFiles>
+    </Filter>
+    <Filter Include="Generated Files\Release">
+      <UniqueIdentifier>{ea867159-1dcd-4560-a450-56f4c4e5b125}</UniqueIdentifier>
+      <Extensions>cpp;moc</Extensions>
+      <SourceControlFiles>False</SourceControlFiles>
+    </Filter>
+    <Filter Include="Generated Files\Template">
+      <UniqueIdentifier>{23d9c9eb-8d20-409a-add8-96e1fe13059f}</UniqueIdentifier>
+      <Extensions>cpp;moc</Extensions>
+      <SourceControlFiles>False</SourceControlFiles>
+    </Filter>
+  </ItemGroup>
+</Project>

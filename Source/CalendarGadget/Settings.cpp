@@ -1,20 +1,20 @@
 /****************************************************************************
 **
-** Copyright (C) 2010-2011 B.D. Mihai.
+** Copyright (C) 2010-2016 B.D. Mihai.
 **
 ** This file is part of CalendarGadget.
 **
-** CalendarGadget is free software: you can redistribute it and/or modify it 
-** under the terms of the GNU Lesser Public License as published by the Free 
-** Software Foundation, either version 3 of the License, or (at your option) 
+** CalendarGadget is free software: you can redistribute it and/or modify it
+** under the terms of the GNU Lesser Public License as published by the Free
+** Software Foundation, either version 3 of the License, or (at your option)
 ** any later version.
 **
-** CalendarGadget is distributed in the hope that it will be useful, but 
-** WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY 
-** or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser Public License for 
+** CalendarGadget is distributed in the hope that it will be useful, but
+** WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+** or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser Public License for
 ** more details.
 **
-** You should have received a copy of the GNU Lesser Public License along 
+** You should have received a copy of the GNU Lesser Public License along
 ** with CalendarGadget.  If not, see http://www.gnu.org/licenses/.
 **
 ****************************************************************************/
@@ -73,7 +73,7 @@ static unsigned char PrivateKeyWithExponentOfOne[] =
 
 //! the RC4 encryption algorithm key in a SIMPLEBLOB format (the key is not encrypted !!!)
 static unsigned char RC4KeyBlock[] =
-{   
+{
   // Header
   0x01, 0x02, 0x00, 0x00,        // BLOBHEADER bType, bVersion, reserved
   0x01, 0x68, 0x00, 0x00,        // BLOBHEADER aiKeyAlg: CALG_RC4
@@ -86,7 +86,7 @@ static unsigned char RC4KeyBlock[] =
   'P', 'O', 'N', 'M', 'L', 'K', 'J', 'I', 'H', 'G', 'F', 'E', 'D', 'C', 'B', 'A',
 
   // Zero then Random non-zero padding...
-  0x00, 0x3D, 0xB5, 0xE1,        
+  0x00, 0x3D, 0xB5, 0xE1,
   0x5B, 0x27, 0x13, 0x36,
   0x69, 0x9B, 0x56, 0xA9,
   0x52, 0x98, 0x5B, 0xA9,
@@ -98,11 +98,23 @@ static unsigned char RC4KeyBlock[] =
   0x7E, 0x92, 0x2E, 0x5C,
   0x80, 0xDB, 0xE5, 0x2D,
 
-  // ...Padding  
+  // ...Padding
   // Block type; reserved
-  0x60, 0x75,                    
-  0x02, 0x00,                   
+  0x60, 0x75,
+  0x02, 0x00,
 };
+
+//! The client id for google connection
+static QString clientId = "";
+
+//! The client secret for google connection
+static QString clientSecret = "";
+
+//! The encrypted client id for google connection
+static QString encryptedClientId = "";
+
+//! The encrypted client secret for google connection
+static QString encryptedClientSecret = "";
 
 /*!
 Create a new instance of the Settings class.
@@ -122,19 +134,14 @@ Settings::~Settings()
 }
 
 /*!
-This file is called in the constructor of the class in order to provide the 
+This file is called in the constructor of the class in order to provide the
 default setting for the application.
 */
 void Settings::setDefault()
 {
   setValue("Calendar/Position", QPoint(10,10));
   setValue("Calendar/Size", QSize(350,250));
-  setValue("Google/Username", "");
-  setValue("Google/Password", "");
-  setValue("Google/IsRemembered", false);
-  setValue("Connection/ProxyType", QNetworkProxy::NoProxy);
-  setValue("Connection/ProxyAddress", "");
-  setValue("Connection/ProxyPort", 0);
+  setValue("Google/RefreshToken", "");
 }
 
 void Settings::setPosition(const QPoint &newPosition)
@@ -157,64 +164,34 @@ QSize Settings::getSize()
   return value("Calendar/Size").toSize();
 }
 
-void Settings::setPassword(const QString &newPassword)
+QString Settings::getRefreshToken()
 {
-  setValue("Google/Password", encript(newPassword));
+  return decrypt(value("Google/RefreshToken").toString());
 }
 
-QString Settings::getPassword()
+void Settings::setRefreshToken(const QString &newRefreshToken)
 {
-  return decrypt(value("Google/Password").toString());
+  setValue("Google/RefreshToken", encript(newRefreshToken));
 }
 
-void Settings::setUsername(const QString &newUsername)
+QString Settings::getClientId()
 {
-  setValue("Google/Username", newUsername);
+  if (!clientId.isEmpty())
+    return clientId;
+  if (!encryptedClientId.isEmpty())
+    return decrypt(encryptedClientId);
+
+  return "";
 }
 
-QString Settings::getUsername()
+QString Settings::getClientSecret()
 {
-  return value("Google/Username").toString();
-}
+  if (!clientSecret.isEmpty())
+    return clientSecret;
+  if (!encryptedClientSecret.isEmpty())
+    return decrypt(encryptedClientSecret);
 
-bool Settings::isRemembered()
-{
-  return value("Google/IsRemembered").toBool();
-}
-
-void Settings::setRemembered(bool newRemembered)
-{
-  setValue("Google/IsRemembered", newRemembered);
-}
-
-void Settings::setProxyType(QNetworkProxy::ProxyType type)
-{
-  setValue("Connection/ProxyType", type);
-}
-
-QNetworkProxy::ProxyType Settings::getProxyType()
-{
-  return (QNetworkProxy::ProxyType)value("Connection/ProxyType").toUInt();
-}
-
-void Settings::setProxyAddress(const QString &address)
-{
-  setValue("Connection/ProxyAddress", address);
-}
-
-QString Settings::getProxyAddress()
-{
-  return value("Connection/ProxyAddress").toString();
-}
-
-void Settings::setProxyPort(quint16 port)
-{
-  setValue("Connection/ProxyPort", port);
-}
-
-quint16 Settings::getProxyPort()
-{
-  return value("Connection/ProxyPort").toUInt();
+  return "";
 }
 
 /*!
@@ -252,16 +229,16 @@ QString Settings::encript(const QString &text)
   }
 
   // encrypt the data
-  CryptEncrypt( RC4Key, 0, 1, 0, data, &length, length);
+  CryptEncrypt(RC4Key, 0, 1, 0, data, &length, length);
 
   // convert data to text
   for (int i = 0; i < length; i++)
   {
-    helperStr += QString("%1 ").arg(data[i]);
+    helperStr += QString("%1").arg(data[i], 2, 16, QChar('0')).toUpper();
   }
   helperStr = helperStr.trimmed();
 
-  delete [] data;
+  delete[] data;
 
   // clean up
   CryptDestroyKey(RC4Key);
@@ -280,7 +257,6 @@ QString Settings::decrypt(const QString &text)
 {
   unsigned long length;
   QString helperStr;
-  QStringList values;
 
   // get a CSP handle
   HCRYPTPROV CryptoProv = NULL;
@@ -301,18 +277,17 @@ QString Settings::decrypt(const QString &text)
   // convert to data
   helperStr = text;
   helperStr = helperStr.trimmed();
-  values = helperStr.split(" ", QString::SkipEmptyParts);
 
-  length = values.count();
+  length = helperStr.length()/2;
   unsigned char *data = new unsigned char[length];
 
   for (int i = 0; i < length; i++)
   {
-    data[i] = values.at(i).toUInt();
+    data[i] = helperStr.mid(i * 2, 2).toUInt(0, 16);
   }
 
   // decrypt the data
-  CryptEncrypt( RC4Key, 0, 1, 0, data, &length, length);
+  CryptEncrypt(RC4Key, 0, 1, 0, data, &length, length);
 
   // convert numbers to text
   helperStr = "";
@@ -321,7 +296,7 @@ QString Settings::decrypt(const QString &text)
     helperStr += (char)data[i];
   }
 
-  delete [] data;
+  delete[] data;
 
   // clean up
   CryptDestroyKey(RC4Key);
