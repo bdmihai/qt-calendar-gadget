@@ -23,7 +23,7 @@
 #define DEFINES_H
 
 //! Application version
-#define APP_VERSION     "1.2.0"
+#define APP_VERSION     "1.2.1"
 
 //! Application name
 #define APP_NAME        "CalendarGadget"

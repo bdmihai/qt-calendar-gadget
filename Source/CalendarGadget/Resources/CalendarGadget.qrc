@@ -7,4 +7,7 @@
         <file>Close.png</file>
         <file>Google.png</file>
     </qresource>
+    <qresource prefix="/qt/etc">
+        <file>qt.conf</file>
+    </qresource>
 </RCC>

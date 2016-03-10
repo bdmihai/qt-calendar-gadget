@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "Calendar Gadget"
-#define MyAppVersion "1.2.0"
+#define MyAppVersion "1.2.1"
 #define MyAppPublisher "Home"
 #define MyAppURL "https://github.com/bdmihai/qt-calendar-gadget"
 #define MyAppExeName "CalendarGadget.exe"
@@ -59,6 +59,10 @@ Source: "..\..\..\Libraries\Qt5\5.5\msvc2013\bin\Qt5WebChannel.dll"; DestDir: "{
 Source: "..\..\..\Libraries\Qt5\5.5\msvc2013\bin\Qt5WebKit.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\..\..\Libraries\Qt5\5.5\msvc2013\bin\Qt5WebKitWidgets.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\..\..\Libraries\Qt5\5.5\msvc2013\bin\Qt5Widgets.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\..\..\Libraries\Qt5\5.5\msvc2013\bin\icudt54.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\..\..\Libraries\Qt5\5.5\msvc2013\bin\icuin54.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\..\..\Libraries\Qt5\5.5\msvc2013\bin\icuuc54.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\..\..\Libraries\Qt5\5.5\msvc2013\plugins\platforms\qwindows.dll"; DestDir: "{app}\plugins\platforms"; Flags: ignoreversion
 ; OpenSSL
 Source: "C:\Program Files (x86)\OpenSSL\bin\libeay32.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "C:\Program Files (x86)\OpenSSL\bin\ssleay32.dll"; DestDir: "{app}"; Flags: ignoreversion
