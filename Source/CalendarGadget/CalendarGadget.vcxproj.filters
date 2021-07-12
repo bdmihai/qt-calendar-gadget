@@ -15,17 +15,6 @@
     <ClCompile Include="StdAfx.cpp" />
     <ClCompile Include="Widgets\Token.cpp" />
     <ClCompile Include="GeneratedFiles\qrc_CalendarGadget.cpp" />
-    <ClCompile Include="GeneratedFiles\Release\moc_AuthService.cpp" />
-    <ClCompile Include="GeneratedFiles\Release\moc_Button.cpp" />
-    <ClCompile Include="GeneratedFiles\Release\moc_Calendar.cpp" />
-    <ClCompile Include="GeneratedFiles\Release\moc_CalendarService.cpp" />
-    <ClCompile Include="GeneratedFiles\Release\moc_ConnectDialog.cpp" />
-    <ClCompile Include="GeneratedFiles\Release\moc_DaysTable.cpp" />
-    <ClCompile Include="GeneratedFiles\Release\moc_DropDown.cpp" />
-    <ClCompile Include="GeneratedFiles\Release\moc_DropDownPopup.cpp" />
-    <ClCompile Include="GeneratedFiles\Release\moc_Gadget.cpp" />
-    <ClCompile Include="GeneratedFiles\Release\moc_Settings.cpp" />
-    <ClCompile Include="GeneratedFiles\Release\moc_Token.cpp" />
     <ClCompile Include="GeneratedFiles\Debug\moc_AuthService.cpp" />
     <ClCompile Include="GeneratedFiles\Debug\moc_Button.cpp" />
     <ClCompile Include="GeneratedFiles\Debug\moc_Calendar.cpp" />
@@ -66,6 +55,39 @@
     </ClCompile>
     <ClCompile Include="GeneratedFiles\Template\moc_EventService.cpp">
       <Filter>Generated Files\Template</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_AuthService.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_Button.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_Calendar.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_CalendarService.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_ConnectDialog.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_DaysTable.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_DropDown.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_DropDownPopup.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_Gadget.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_Settings.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_Token.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
