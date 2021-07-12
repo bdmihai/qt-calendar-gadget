@@ -143,11 +143,18 @@ AppPackages/
 # Others
 sql/
 *.Cache
+descript.ion
 ClientBin/
 [Ss]tyle[Cc]op.*
 ~$*
 *~
 *.dbmdl
+*.VC.db
+*.VC.db-shm
+*.VC.db-wal
+*.VC.opendb
+*.lnk
+*.URL
 *.[Pp]ublish.xml
 *.pfx
 *.publishsettings
