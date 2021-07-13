@@ -49,5 +49,6 @@ int main(int argc, char *argv[])
   calendar.show();
 
   // run the application
+  app.setQuitOnLastWindowClosed(false);  // avoid closing on show a dialog e.g. QMessageBox
   return app.exec();;
 }

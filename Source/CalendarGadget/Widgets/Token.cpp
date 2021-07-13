@@ -33,6 +33,52 @@ Token::Token(QWidget *parent) : QLabel(parent)
   resize(200,200);
 
   setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+
+  plus100DaysAction = new QAction(tr("Add &100 Days"), this);
+  // add100DaysAct = std::unique_ptr<QAction>(tr("Add &100 Days"), this);  // don't know how to do this to avoid warning C26409
+  plus100DaysAction->setShortcut(QKeySequence(Qt::Key_1));
+  plus100DaysAction->setStatusTip(tr("Add 100 days to selected date"));
+  connect(plus100DaysAction, &QAction::triggered, this, &Token::plus100Days);
+
+  dateTitle = new QLabel("Today");
+  // dateTitle->setFrameStyle(QFrame::StyledPanel | QFrame::Sunken);
+  dateTitle->setAlignment(Qt::AlignCenter);
+  setDateTitleFontBold();
+  dateTitleAction = new QWidgetAction(this);
+  dateTitleAction->setDefaultWidget(dateTitle);
+
+  days = new QLineEdit("100");
+  QString numbers = "99999";
+  days->setMaxLength(numbers.length());
+  days->setInputMask(numbers);
+  days->selectAll();
+  daysAction = new QWidgetAction(this);
+  daysAction->setDefaultWidget(days);
+  
+  // does not trigger Token::processDays()
+  bool connected = connect(days, &QLineEdit::editingFinished, this, &Token::processDays);
+  qDebug().noquote() << "Connection 1 established?" << connected;
+  Q_ASSERT(connected);
+  connect(days, &QObject::destroyed, [] { qDebug() << "Sender days got deleted!"; });
+  connect(this, &QObject::destroyed, [] { qDebug() << "Receiver Token got deleted!"; });
+  
+  connected = connect(days, &QLineEdit::returnPressed, this, &Token::processDays);
+  qDebug().noquote() << "Connection 2 established?" << connected;
+  Q_ASSERT(connected);
+
+
+  connect(days, &QLineEdit::editingFinished, [=]() {
+      setText(days->text());
+      days->hide();
+      });
+
+  
+  // triggers on tabbing to the edit field and then pressing enter
+  connected = connect(daysAction, &QAction::triggered, this, &Token::processDays);
+  qDebug().noquote() << "Connection 3 established?" << connected;
+  Q_ASSERT(connected);
+  
+  // this->dumpObjectInfo();
 }
 
 /*!
@@ -40,8 +86,21 @@ Clean up.
 */
 Token::~Token()
 {
-
+    delete plus100DaysAction;
+    delete dateTitle;
+    delete dateTitleAction;
+    delete days;
+    delete daysAction;
 }
+
+void Token::setDateTitleFontBold()
+{
+    QFont boldFont = dateTitle->font();
+    boldFont.setBold(true);
+    dateTitle->setFont(boldFont);
+}
+
+
 
 /*!
 This function sets the date for the token.
@@ -52,6 +111,11 @@ void Token::setDate(const QDate &newDate, const int &currentMonth)
   month = currentMonth;
   setDisplayText(false);
   setToolTip("");
+  QString label = "Add &100 days to " + this->date.toString(Qt::SystemLocaleDate);
+  plus100DaysAction->setText(label);
+
+  setDateTitleFontBold();
+  dateTitle->setText(this->date.toString(Qt::SystemLocaleDate));
 }
 
 /*!
@@ -91,8 +155,8 @@ void Token::setEvent(EventItem eventItem)
 }
 
 /*!
-Format the test that shall be displayed taking into account the availability of 
-a all day event.
+Format the text that shall be displayed taking into account the availability of 
+an all day event.
 */
 void Token::setDisplayText(bool hasAllDayEvent)
 {
@@ -173,6 +237,36 @@ void Token::mouseReleaseEvent(QMouseEvent *event)
   QLabel::mouseReleaseEvent(event);
   QWidget::mouseReleaseEvent(event);
 }
+
+void Token::contextMenuEvent(QContextMenuEvent* event)
+{
+    QMenu menu(this);
+    menu.addAction(dateTitleAction);
+    menu.addSeparator();
+    menu.addAction(plus100DaysAction);
+    menu.addAction(daysAction);
+    menu.exec(event->globalPos());
+}
+
+void Token::plus100Days()
+{
+    QString result = this->date.toString(Qt::SystemLocaleDate) + " +100 days = " + this->date.addDays(100).toString(Qt::SystemLocaleDate);
+    // QString msg = QString("Token::contextMenuEvent(): date = %1, + 100 days = %2").arg(this->date.toString()).arg(this->date.addDays(100).toString());
+    qDebug().noquote() << result;
+    QMessageBox msgBox;
+    msgBox.setText(result);
+    msgBox.exec();
+}
+
+void Token::processDays()
+{
+    QString result = this->date.toString(Qt::SystemLocaleDate) + " +" + days->text() + " days = " + this->date.addDays(days->text().toInt()).toString(Qt::SystemLocaleDate);
+    qDebug().noquote() << result;
+    QMessageBox msgBox;
+    msgBox.setText(result);
+    msgBox.exec();
+}
+
 
 /*!
 Override the paint event. If the token displays a date and this is the current

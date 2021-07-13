@@ -48,6 +48,19 @@ class Token : public QLabel
     virtual void mouseMoveEvent(QMouseEvent *event);
     virtual void mousePressEvent(QMouseEvent *event);
     virtual void mouseReleaseEvent(QMouseEvent *event);
+    virtual void contextMenuEvent(QContextMenuEvent* event);
+
+private slots:
+    void plus100Days();
+    void processDays();
+
+private:
+    QLabel* dateTitle;
+    QWidgetAction* dateTitleAction;
+    QAction* plus100DaysAction;
+    QLineEdit* days;
+    QWidgetAction* daysAction;
+    void setDateTitleFontBold();
 };
 
 #endif
