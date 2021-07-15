@@ -52,12 +52,18 @@ class Token : public QLabel
 
 private slots:
     void plus100Days();
+    void plusOneMonth();
+    void plus4Weeks();
     void processDays();
 
 private:
     QLabel* dateTitle;
     QWidgetAction* dateTitleAction;
     QAction* plus100DaysAction;
+    QAction* plusOneMonthAction;
+    QAction* plus4WeeksAction;
+    QLabel* daysTitle;
+    QWidgetAction* daysTitleAction;
     QLineEdit* days;
     QWidgetAction* daysAction;
     void setDateTitleFontBold();

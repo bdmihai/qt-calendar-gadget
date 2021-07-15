@@ -21,6 +21,15 @@
 
 #include "StdAfx.h"
 #include "Token.h"
+#pragma warning(push)
+#pragma warning(disable : 26409) 
+// don't know how to do this to avoid warning C26409 
+//      auto plus100DaysAction = std::make_unique<QAction>(tr("Add &100 Days"), this);  
+// works but is not compatible with connect(), ErrorE0304	- no instance of overloaded function "Token::connect" matches the argument list
+//           plus100DaysAction = std::make_unique<QAction>(tr("Add &100 Days"), this);  
+// results in E0413	- no suitable conversion function from "std::unique_ptr<QAction, std::default_delete<QAction>>" to "QAction *" exists	
+
+
 
 /*!
 Create a new instance of the Token class.
@@ -34,61 +43,78 @@ Token::Token(QWidget *parent) : QLabel(parent)
 
   setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
-  plus100DaysAction = new QAction(tr("Add &100 Days"), this);
-  // add100DaysAct = std::unique_ptr<QAction>(tr("Add &100 Days"), this);  // don't know how to do this to avoid warning C26409
-  plus100DaysAction->setShortcut(QKeySequence(Qt::Key_1));
-  plus100DaysAction->setStatusTip(tr("Add 100 days to selected date"));
-  connect(plus100DaysAction, &QAction::triggered, this, &Token::plus100Days);
 
-  dateTitle = new QLabel("Today");
-  // dateTitle->setFrameStyle(QFrame::StyledPanel | QFrame::Sunken);
+  dateTitle = new QLabel("Today");  // dateTitle->setFrameStyle(QFrame::StyledPanel | QFrame::Sunken);
   dateTitle->setAlignment(Qt::AlignCenter);
   setDateTitleFontBold();
   dateTitleAction = new QWidgetAction(this);
   dateTitleAction->setDefaultWidget(dateTitle);
 
+  plus100DaysAction = new QAction(tr("Add 100 &days"), this);   
+  plus100DaysAction->setShortcut(QKeySequence(Qt::Key_D));
+  plus100DaysAction->setStatusTip(tr("Add 100 days to selected date"));
+  connect(plus100DaysAction, &QAction::triggered, this, &Token::plus100Days);
+
+  plusOneMonthAction = new QAction(tr("Add &one month"), this);
+  plusOneMonthAction->setShortcut(QKeySequence(Qt::Key_O));
+  plusOneMonthAction->setStatusTip(tr("Add one full month to selected date"));
+  connect(plusOneMonthAction, &QAction::triggered, this, &Token::plusOneMonth);
+
+  plus4WeeksAction = new QAction(tr("Add &four weeks"), this);
+  plus4WeeksAction->setShortcut(QKeySequence(Qt::Key_F));
+  plus4WeeksAction->setStatusTip(tr("Add four weeks to selected date"));
+  connect(plus4WeeksAction, &QAction::triggered, this, &Token::plus4Weeks);
+
+  daysTitle = new QLabel("Enter number of days:");  
+  daysTitle->setAlignment(Qt::AlignLeft);
+  daysTitleAction = new QWidgetAction(this);
+  daysTitleAction->setDefaultWidget(daysTitle);
+
   days = new QLineEdit("100");
-  QString numbers = "99999";
+  QString numbers = "#####";
   days->setMaxLength(numbers.length());
   days->setInputMask(numbers);
-  days->selectAll();
+  // days->setValidator(new QIntValidator(-99999, 99999, days));
+  // days->selectAll(); 
   daysAction = new QWidgetAction(this);
   daysAction->setDefaultWidget(days);
   
   // does not trigger Token::processDays()
   bool connected = connect(days, &QLineEdit::editingFinished, this, &Token::processDays);
-  qDebug().noquote() << "Connection 1 established?" << connected;
   Q_ASSERT(connected);
-  connect(days, &QObject::destroyed, [] { qDebug() << "Sender days got deleted!"; });
-  connect(this, &QObject::destroyed, [] { qDebug() << "Receiver Token got deleted!"; });
   
+  // does not trigger Token::processDays()
   connected = connect(days, &QLineEdit::returnPressed, this, &Token::processDays);
-  qDebug().noquote() << "Connection 2 established?" << connected;
   Q_ASSERT(connected);
 
-
+  // check if triggered
   connect(days, &QLineEdit::editingFinished, [=]() {
-      setText(days->text());
-      days->hide();
+      QMessageBox msgBox;
+      msgBox.setText("days treggered on &QLineEdit::editingFinished");
+      msgBox.exec();
       });
 
-  
   // triggers on tabbing to the edit field and then pressing enter
   connected = connect(daysAction, &QAction::triggered, this, &Token::processDays);
-  qDebug().noquote() << "Connection 3 established?" << connected;
   Q_ASSERT(connected);
   
   // this->dumpObjectInfo();
 }
+
+#pragma warning(pop)
 
 /*!
 Clean up.
 */
 Token::~Token()
 {
-    delete plus100DaysAction;
     delete dateTitle;
     delete dateTitleAction;
+    delete plus100DaysAction;
+    delete plusOneMonthAction;
+    delete plus4WeeksAction;
+    delete daysTitle;
+    delete daysTitleAction;
     delete days;
     delete daysAction;
 }
@@ -244,7 +270,13 @@ void Token::contextMenuEvent(QContextMenuEvent* event)
     menu.addAction(dateTitleAction);
     menu.addSeparator();
     menu.addAction(plus100DaysAction);
+    menu.addAction(plusOneMonthAction);
+    menu.addAction(plus4WeeksAction);
+    menu.addSeparator();
+    menu.addAction(daysTitleAction);
     menu.addAction(daysAction);
+    // menu.actions()[menu.actions().indexOf(daysAction)]->setPriority(QAction::HighPriority);
+    menu.setActiveAction(menu.actions()[menu.actions().indexOf(daysAction)]);
     menu.exec(event->globalPos());
 }
 
@@ -252,6 +284,24 @@ void Token::plus100Days()
 {
     QString result = this->date.toString(Qt::SystemLocaleDate) + " +100 days = " + this->date.addDays(100).toString(Qt::SystemLocaleDate);
     // QString msg = QString("Token::contextMenuEvent(): date = %1, + 100 days = %2").arg(this->date.toString()).arg(this->date.addDays(100).toString());
+    qDebug().noquote() << result;
+    QMessageBox msgBox;
+    msgBox.setText(result);
+    msgBox.exec();
+}
+
+void Token::plusOneMonth()
+{
+    QString result = this->date.toString(Qt::SystemLocaleDate) + " + one month = " + this->date.addMonths(1).toString(Qt::SystemLocaleDate);
+    qDebug().noquote() << result;
+    QMessageBox msgBox;
+    msgBox.setText(result);
+    msgBox.exec();
+}
+
+void Token::plus4Weeks()
+{
+    QString result = this->date.toString(Qt::SystemLocaleDate) + " + 4 weeks = " + this->date.addDays(4*7).toString(Qt::SystemLocaleDate);
     qDebug().noquote() << result;
     QMessageBox msgBox;
     msgBox.setText(result);
