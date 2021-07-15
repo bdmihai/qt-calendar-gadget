@@ -41,6 +41,7 @@ class Token : public QLabel
 
   protected:
     QDate date;
+    QWidget *calendar;
     int month;
     void setDisplayText(bool hasAllDayEvent);
 

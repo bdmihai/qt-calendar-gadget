@@ -167,6 +167,11 @@ void Calendar::closeEvent(QCloseEvent *event)
   Gadget::closeEvent(event);
 }
 
+void Calendar::setCurrentDate(QDate date)
+{
+    displayDate = date;
+}
+
 /*!
 Updates the months to the month selection drop down.
 */

@@ -45,15 +45,20 @@ class Calendar : public Gadget
     virtual void showEvent(QShowEvent * event);
     virtual void closeEvent(QCloseEvent *event);
 
+  public:
+      void setCurrentDate(QDate date);
+  
+  public slots:
+      void updateDisplay();
+
   protected slots:
     void updateCurrent();
-    void updateDisplay();
-    void updateMonths();
     void updateYears();
+    void updateMonths();
     void goToPrevMonth();
     void goToNextMonth();
-    void goToMonth();
     void goToYear();
+    void goToMonth();
     void goToToday();
     void showConnect();
     void showAbout();

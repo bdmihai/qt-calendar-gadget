@@ -21,6 +21,7 @@
 
 #include "StdAfx.h"
 #include "DaysTable.h"
+#include "Calendar.h"
 
 /*!
 Create a new instance of the DaysTable class.
@@ -29,6 +30,7 @@ DaysTable::DaysTable(QWidget *parent) : QWidget(parent)
 {
   createLayout();
   createAnimations();
+  calendar = parent;
 }
 
 /*!
@@ -200,19 +202,18 @@ This function displays the calendar for a given date.
 */
 void DaysTable::displayDate(QDate date)
 {
-  QString monthText;
-  QString yearText;
-  QDate   tempDate;
   QDate   firstDate;
-
-  monthText = QString("<font size=\"5\" color=\"black\" face=\"Verdana\">%1</font></color>").
-              arg(QDate::longMonthName(date.month()));
-
-  yearText = QString("<font size=\"5\" color=\"black\" face=\"Verdana\">%1</font></color>").
-             arg(date.year());
+  static bool calledself = false;
 
   firstDate.setDate(date.year(), date.month(), 1);
   firstDate = firstDate.addDays(-firstDate.dayOfWeek() + 1);
+
+  if (!calledself) {
+      calledself = true;
+      ((Calendar*)calendar)->setCurrentDate(date);
+      ((Calendar*)calendar)->updateDisplay();
+  }
+  calledself = false;
 
   displayWeekNumbers(firstDate);
   displayDays(date, firstDate);

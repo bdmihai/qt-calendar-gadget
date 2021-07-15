@@ -21,6 +21,7 @@
 
 #include "StdAfx.h"
 #include "Token.h"
+#include "DaysTable.h"
 #pragma warning(push)
 #pragma warning(disable : 26409) 
 // don't know how to do this to avoid warning C26409 
@@ -37,6 +38,7 @@ Create a new instance of the Token class.
 Token::Token(QWidget *parent) : QLabel(parent)
 {
   date = QDate();
+  calendar = parent;
 
   setAttribute(Qt::WA_Hover, true);
   resize(200,200);
@@ -70,34 +72,38 @@ Token::Token(QWidget *parent) : QLabel(parent)
   daysTitleAction = new QWidgetAction(this);
   daysTitleAction->setDefaultWidget(daysTitle);
 
-  days = new QLineEdit("100");
-  QString numbers = "#####";
+  days = new QLineEdit();
+  QString numbers = "#######";
   days->setMaxLength(numbers.length());
   days->setInputMask(numbers);
-  // days->setValidator(new QIntValidator(-99999, 99999, days));
-  // days->selectAll(); 
+  days->setPlaceholderText("200");
   daysAction = new QWidgetAction(this);
   daysAction->setDefaultWidget(days);
   
   // does not trigger Token::processDays()
-  bool connected = connect(days, &QLineEdit::editingFinished, this, &Token::processDays);
+  bool connected = connect(days, &QLineEdit::returnPressed, this, &Token::processDays);
   Q_ASSERT(connected);
-  
+
+  /*
+
   // does not trigger Token::processDays()
-  connected = connect(days, &QLineEdit::returnPressed, this, &Token::processDays);
+  bool connected = connect(days, &QLineEdit::editingFinished, this, &Token::processDays);
   Q_ASSERT(connected);
 
   // check if triggered
   connect(days, &QLineEdit::editingFinished, [=]() {
       QMessageBox msgBox;
-      msgBox.setText("days treggered on &QLineEdit::editingFinished");
+      msgBox.setText("days triggered on &QLineEdit::editingFinished");
       msgBox.exec();
       });
 
   // triggers on tabbing to the edit field and then pressing enter
   connected = connect(daysAction, &QAction::triggered, this, &Token::processDays);
   Q_ASSERT(connected);
-  
+
+  */
+
+
   // this->dumpObjectInfo();
 }
 
@@ -285,9 +291,12 @@ void Token::plus100Days()
     QString result = this->date.toString(Qt::SystemLocaleDate) + " +100 days = " + this->date.addDays(100).toString(Qt::SystemLocaleDate);
     // QString msg = QString("Token::contextMenuEvent(): date = %1, + 100 days = %2").arg(this->date.toString()).arg(this->date.addDays(100).toString());
     qDebug().noquote() << result;
+    ((DaysTable*)calendar)->displayDate(this->date.addDays(100));
+    /*
     QMessageBox msgBox;
     msgBox.setText(result);
     msgBox.exec();
+    */
 }
 
 void Token::plusOneMonth()

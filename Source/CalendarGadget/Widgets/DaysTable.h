@@ -55,6 +55,7 @@ class DaysTable : public QWidget
     QList<Token *> cwList;
     QList<Token *> daysList;
     QAnimationGroup *animationGroup;
+    QWidget* calendar;
 
     void displayWeekNumbers(QDate firstDate);
     void displayDays(QDate date, QDate firstDate);
