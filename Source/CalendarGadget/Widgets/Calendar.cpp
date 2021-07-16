@@ -45,8 +45,9 @@ Calendar::Calendar(QWidget *parent) : Gadget(parent)
   updateTimer.start();
 
   connect(&updateTimer, SIGNAL(timeout()), this, SLOT(updateCurrent()));
+  calculatedDay = QDate(1473, 2, 19);
 
-  // initial update
+    // initial update
   updateCurrent();
   updateDisplay();
 }
@@ -170,6 +171,16 @@ void Calendar::closeEvent(QCloseEvent *event)
 void Calendar::setCurrentDate(QDate date)
 {
     displayDate = date;
+}
+
+void Calendar::setCalculatedDay(QDate date)
+{
+    calculatedDay = date;
+}
+
+QDate Calendar::getCalculatedDay()
+{
+    return calculatedDay;
 }
 
 /*!

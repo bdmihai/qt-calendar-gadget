@@ -52,7 +52,7 @@ Token::Token(QWidget *parent) : QLabel(parent)
   dateTitleAction = new QWidgetAction(this);
   dateTitleAction->setDefaultWidget(dateTitle);
 
-  plus100DaysAction = new QAction(tr("Add 100 &days"), this);   
+  plus100DaysAction = new QAction(tr("Add 100 days"), this);   
   plus100DaysAction->setShortcut(QKeySequence(Qt::Key_D));
   plus100DaysAction->setStatusTip(tr("Add 100 days to selected date"));
   connect(plus100DaysAction, &QAction::triggered, this, &Token::plus100Days);
@@ -203,6 +203,11 @@ void Token::setDisplayText(bool hasAllDayEvent)
         dayText = QString("<b><font size=\"4\" color=\"maroon\" face=\"Verdana\">%1</font></color></b>").
                   arg(date.day());
       }
+      else if (date == ((DaysTable*)calendar)->getCalculatedDay())
+      {
+          dayText = QString("<b><font size=\"5\" color=\"green\" face=\"Verdana\">%1</font></color></b>").
+              arg(date.day());
+      }
       else
       {
         dayText = QString("<b><font size=\"4\" color=\"maroon\" face=\"Verdana\">%1</font></color></b>").
@@ -224,6 +229,11 @@ void Token::setDisplayText(bool hasAllDayEvent)
         dayText = QString("<b><font size=\"4\" color=\"black\" face=\"Verdana\">%1</font></color></b>").
                   arg(date.day());
       }
+      else if (date == ((DaysTable*)calendar)->getCalculatedDay())
+      {
+          dayText = QString("<b><font size=\"5\" color=\"green\" face=\"Verdana\">%1</font></color></b>").
+              arg(date.day());
+      }
       else
       {
         dayText = QString("<font size=\"4\" color=\"black\" face=\"Verdana\">%1</font></color>").
@@ -232,8 +242,18 @@ void Token::setDisplayText(bool hasAllDayEvent)
     }
     else
     {
-      dayText = QString("<font size=\"4\" color=\"gray\" face=\"Verdana\">%1</font></color>").
+      QString result = "Gray days: " + this->date.toString(Qt::SystemLocaleDate) + " vs. calculated day = " + ((DaysTable*)calendar)->getCalculatedDay().toString(Qt::SystemLocaleDate);
+      qDebug().noquote() << result;
+      if (date == ((DaysTable*)calendar)->getCalculatedDay())
+      {
+        dayText = QString("<b><font size=\"5\" color=\"green\" face=\"Verdana\">%1</font></color></b>").
+                  arg(date.day());
+      }
+      else 
+      {
+        dayText = QString("<font size=\"4\" color=\"gray\" face=\"Verdana\">%1</font></color>").
                 arg(date.day());
+      }
     }
   }
 
@@ -289,41 +309,37 @@ void Token::contextMenuEvent(QContextMenuEvent* event)
 void Token::plus100Days()
 {
     QString result = this->date.toString(Qt::SystemLocaleDate) + " +100 days = " + this->date.addDays(100).toString(Qt::SystemLocaleDate);
-    // QString msg = QString("Token::contextMenuEvent(): date = %1, + 100 days = %2").arg(this->date.toString()).arg(this->date.addDays(100).toString());
     qDebug().noquote() << result;
-    ((DaysTable*)calendar)->displayDate(this->date.addDays(100));
-    /*
-    QMessageBox msgBox;
-    msgBox.setText(result);
-    msgBox.exec();
-    */
+    QDate calculatedDay = this->date.addDays(100);
+    ((DaysTable*)calendar)->setCalculatedDay(calculatedDay);
+    ((DaysTable*)calendar)->displayDate(calculatedDay);
 }
 
 void Token::plusOneMonth()
 {
     QString result = this->date.toString(Qt::SystemLocaleDate) + " + one month = " + this->date.addMonths(1).toString(Qt::SystemLocaleDate);
     qDebug().noquote() << result;
-    QMessageBox msgBox;
-    msgBox.setText(result);
-    msgBox.exec();
+    QDate calculatedDay = this->date.addMonths(1);
+    ((DaysTable*)calendar)->setCalculatedDay(calculatedDay);
+    ((DaysTable*)calendar)->displayDate(calculatedDay);
 }
 
 void Token::plus4Weeks()
 {
     QString result = this->date.toString(Qt::SystemLocaleDate) + " + 4 weeks = " + this->date.addDays(4*7).toString(Qt::SystemLocaleDate);
     qDebug().noquote() << result;
-    QMessageBox msgBox;
-    msgBox.setText(result);
-    msgBox.exec();
+    QDate calculatedDay = this->date.addDays(4 * 7);
+    ((DaysTable*)calendar)->setCalculatedDay(calculatedDay);
+    ((DaysTable*)calendar)->displayDate(calculatedDay);
 }
 
 void Token::processDays()
 {
     QString result = this->date.toString(Qt::SystemLocaleDate) + " +" + days->text() + " days = " + this->date.addDays(days->text().toInt()).toString(Qt::SystemLocaleDate);
     qDebug().noquote() << result;
-    QMessageBox msgBox;
-    msgBox.setText(result);
-    msgBox.exec();
+    QDate calculatedDay = this->date.addDays(days->text().toInt());
+    ((DaysTable*)calendar)->setCalculatedDay(calculatedDay);
+    ((DaysTable*)calendar)->displayDate(calculatedDay);
 }
 
 

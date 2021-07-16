@@ -47,6 +47,8 @@ class Calendar : public Gadget
 
   public:
       void setCurrentDate(QDate date);
+      void setCalculatedDay(QDate date);
+      QDate getCalculatedDay();
   
   public slots:
       void updateDisplay();
@@ -77,6 +79,7 @@ class Calendar : public Gadget
     QDate  currentDate;
     QTime  currentTime;
     QDate  displayDate;
+    QDate calculatedDay;
 
     GoogleService *googleService;
 };
