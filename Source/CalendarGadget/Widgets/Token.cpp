@@ -311,6 +311,7 @@ void Token::plus100Days()
     QString result = this->date.toString(Qt::SystemLocaleDate) + " +100 days = " + this->date.addDays(100).toString(Qt::SystemLocaleDate);
     qDebug().noquote() << result;
     QDate calculatedDay = this->date.addDays(100);
+    ((DaysTable*)calendar)->animateRight();
     ((DaysTable*)calendar)->setCalculatedDay(calculatedDay);
     ((DaysTable*)calendar)->displayDate(calculatedDay);
 }
@@ -320,6 +321,7 @@ void Token::plusOneMonth()
     QString result = this->date.toString(Qt::SystemLocaleDate) + " + one month = " + this->date.addMonths(1).toString(Qt::SystemLocaleDate);
     qDebug().noquote() << result;
     QDate calculatedDay = this->date.addMonths(1);
+    ((DaysTable*)calendar)->animateRight();
     ((DaysTable*)calendar)->setCalculatedDay(calculatedDay);
     ((DaysTable*)calendar)->displayDate(calculatedDay);
 }
@@ -329,6 +331,7 @@ void Token::plus4Weeks()
     QString result = this->date.toString(Qt::SystemLocaleDate) + " + 4 weeks = " + this->date.addDays(4*7).toString(Qt::SystemLocaleDate);
     qDebug().noquote() << result;
     QDate calculatedDay = this->date.addDays(4 * 7);
+    ((DaysTable*)calendar)->animateRight();
     ((DaysTable*)calendar)->setCalculatedDay(calculatedDay);
     ((DaysTable*)calendar)->displayDate(calculatedDay);
 }
@@ -338,6 +341,12 @@ void Token::processDays()
     QString result = this->date.toString(Qt::SystemLocaleDate) + " +" + days->text() + " days = " + this->date.addDays(days->text().toInt()).toString(Qt::SystemLocaleDate);
     qDebug().noquote() << result;
     QDate calculatedDay = this->date.addDays(days->text().toInt());
+    if (days->text().toInt() > 15) {
+        ((DaysTable*)calendar)->animateRight();
+    }
+    else if (days->text().toInt() < -15) {
+        ((DaysTable*)calendar)->animateLeft();
+    }
     ((DaysTable*)calendar)->setCalculatedDay(calculatedDay);
     ((DaysTable*)calendar)->displayDate(calculatedDay);
 }
