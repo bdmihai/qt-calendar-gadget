@@ -309,10 +309,6 @@ void Token::processDays()
     qDebug().noquote() << this->date.toString(Qt::SystemLocaleDate) + " +" + days->text() + " days = " + calculatedDay.toString(Qt::SystemLocaleDate);
     skipForwardAndHilite(calculatedDay, calculatedDay.toString(Qt::SystemLocaleDate) + " is " + days->text() + " days from " + this->date.toString(Qt::SystemLocaleDate));
     daysAction->trigger();
-
-    QString expression_string("3 + Math.sqrt(5) + Math.pow(3,2) + Math.log(5)");
-    QScriptEngine expression;
-    double my_val = expression.evaluate(expression_string).toNumber();
 }
 
 void Token::skipForwardAndHilite(const QDate& calculatedDay, const QString& DescriptionOfTheOperationPerformed) {
