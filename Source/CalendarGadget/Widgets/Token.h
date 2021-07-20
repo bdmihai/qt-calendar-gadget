@@ -37,11 +37,12 @@ class Token : public QLabel
     virtual ~Token();
 
     void setDate(const QDate &newDate, const int &currentMonth);
+    void updateContextMenu();
     void setEvent(EventItem eventItem);
 
   protected:
     QDate date;
-    QWidget *calendar;
+    QWidget *daysTable;
     int month;
     void setDisplayText(bool hasAllDayEvent);
 
@@ -68,6 +69,7 @@ private:
     QLineEdit* days;
     QWidgetAction* daysAction;
     void setDateTitleFontBold();
+    void Token::skipForwardAndHilite(const QDate& calculatedDay, const QString& DescriptionOfTheOperationPerformed);
 };
 
 #endif

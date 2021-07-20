@@ -31,83 +31,68 @@
 // results in E0413	- no suitable conversion function from "std::unique_ptr<QAction, std::default_delete<QAction>>" to "QAction *" exists	
 
 
-
 /*!
 Create a new instance of the Token class.
 */
-Token::Token(QWidget *parent) : QLabel(parent)
+Token::Token(QWidget* parent) : QLabel(parent)
 {
-  date = QDate();
-  calendar = parent;
+	date = QDate();
+	daysTable = parent;
+    if (dynamic_cast<DaysTable*>(daysTable) == nullptr) exit(99);
 
-  setAttribute(Qt::WA_Hover, true);
-  resize(200,200);
+	setAttribute(Qt::WA_Hover, true);
+	resize(200, 200);
 
-  setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+	setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
+	// create items for context menu 
+	dateTitle = new QLabel("Today");
+	dateTitle->setAlignment(Qt::AlignCenter);
+	setDateTitleFontBold();
+	dateTitleAction = new QWidgetAction(this);
+	dateTitleAction->setDefaultWidget(dateTitle);
 
-  dateTitle = new QLabel("Today");  // dateTitle->setFrameStyle(QFrame::StyledPanel | QFrame::Sunken);
-  dateTitle->setAlignment(Qt::AlignCenter);
-  setDateTitleFontBold();
-  dateTitleAction = new QWidgetAction(this);
-  dateTitleAction->setDefaultWidget(dateTitle);
+	plus100DaysAction = new QAction(tr("Add 100 &days"), this);
+	plus100DaysAction->setShortcut(QKeySequence(Qt::Key_D));  // TODO: shortcut key 'D' does not work - no idea why, the others do
+	plus100DaysAction->setStatusTip(tr("Add 100 days to selected date"));
+	connect(plus100DaysAction, &QAction::triggered, this, &Token::plus100Days);
 
-  plus100DaysAction = new QAction(tr("Add 100 days"), this);   
-  plus100DaysAction->setShortcut(QKeySequence(Qt::Key_D));
-  plus100DaysAction->setStatusTip(tr("Add 100 days to selected date"));
-  connect(plus100DaysAction, &QAction::triggered, this, &Token::plus100Days);
+	plusOneMonthAction = new QAction(tr("Add &one month"), this);
+	plusOneMonthAction->setShortcut(QKeySequence(Qt::Key_O));
+	plusOneMonthAction->setStatusTip(tr("Add one full month to selected date"));
+	connect(plusOneMonthAction, &QAction::triggered, this, &Token::plusOneMonth);
 
-  plusOneMonthAction = new QAction(tr("Add &one month"), this);
-  plusOneMonthAction->setShortcut(QKeySequence(Qt::Key_O));
-  plusOneMonthAction->setStatusTip(tr("Add one full month to selected date"));
-  connect(plusOneMonthAction, &QAction::triggered, this, &Token::plusOneMonth);
+	plus4WeeksAction = new QAction(tr("Add &four weeks"), this);
+	plus4WeeksAction->setShortcut(QKeySequence(Qt::Key_F));
+	plus4WeeksAction->setStatusTip(tr("Add four weeks to selected date"));
+	connect(plus4WeeksAction, &QAction::triggered, this, &Token::plus4Weeks);
 
-  plus4WeeksAction = new QAction(tr("Add &four weeks"), this);
-  plus4WeeksAction->setShortcut(QKeySequence(Qt::Key_F));
-  plus4WeeksAction->setStatusTip(tr("Add four weeks to selected date"));
-  connect(plus4WeeksAction, &QAction::triggered, this, &Token::plus4Weeks);
+	daysTitle = new QLabel("Enter number of days:");
+	daysTitle->setAlignment(Qt::AlignLeft);
+	daysTitleAction = new QWidgetAction(this);
+	daysTitleAction->setDefaultWidget(daysTitle);
 
-  daysTitle = new QLabel("Enter number of days:");  
-  daysTitle->setAlignment(Qt::AlignLeft);
-  daysTitleAction = new QWidgetAction(this);
-  daysTitleAction->setDefaultWidget(daysTitle);
+	days = new QLineEdit();
+	QString numbers = "#######";
+	days->setMaxLength(numbers.length());
+	days->setInputMask(numbers);
+	days->setPlaceholderText("200");
+	daysAction = new QWidgetAction(this);
+    daysAction->setDefaultWidget(days);
 
-  days = new QLineEdit();
-  QString numbers = "#######";
-  days->setMaxLength(numbers.length());
-  days->setInputMask(numbers);
-  days->setPlaceholderText("200");
-  daysAction = new QWidgetAction(this);
-  daysAction->setDefaultWidget(days);
-  
-  // does not trigger Token::processDays()
-  bool connected = connect(days, &QLineEdit::returnPressed, this, &Token::processDays);
-  Q_ASSERT(connected);
+	bool connected = connect(days, &QLineEdit::returnPressed, this, &Token::processDays);
+	Q_ASSERT(connected);
 
-  /*
-
-  // does not trigger Token::processDays()
-  bool connected = connect(days, &QLineEdit::editingFinished, this, &Token::processDays);
-  Q_ASSERT(connected);
-
-  // check if triggered
-  connect(days, &QLineEdit::editingFinished, [=]() {
-      QMessageBox msgBox;
-      msgBox.setText("days triggered on &QLineEdit::editingFinished");
-      msgBox.exec();
-      });
-
-  // triggers on tabbing to the edit field and then pressing enter
-  connected = connect(daysAction, &QAction::triggered, this, &Token::processDays);
-  Q_ASSERT(connected);
-
-  */
-
-
-  // this->dumpObjectInfo();
 }
 
 #pragma warning(pop)
+
+void Token::setDateTitleFontBold()
+{
+    QFont boldFont = dateTitle->font();
+    boldFont.setBold(true);
+    dateTitle->setFont(boldFont);
+}
 
 /*!
 Clean up.
@@ -125,17 +110,9 @@ Token::~Token()
     delete daysAction;
 }
 
-void Token::setDateTitleFontBold()
-{
-    QFont boldFont = dateTitle->font();
-    boldFont.setBold(true);
-    dateTitle->setFont(boldFont);
-}
-
-
 
 /*!
-This function sets the date for the token.
+This function sets the date of the day for the token and updates the context menu accordingly
 */
 void Token::setDate(const QDate &newDate, const int &currentMonth)
 {
@@ -143,15 +120,20 @@ void Token::setDate(const QDate &newDate, const int &currentMonth)
   month = currentMonth;
   setDisplayText(false);
   setToolTip("");
-  QString label = "Add &100 days to " + this->date.toString(Qt::SystemLocaleDate);
-  plus100DaysAction->setText(label);
+  updateContextMenu();
+}
 
-  setDateTitleFontBold();
-  dateTitle->setText(this->date.toString(Qt::SystemLocaleDate));
+void Token::updateContextMenu()
+{
+    QString label = "Add 100 days to " + this->date.toString(Qt::SystemLocaleDate);
+    plus100DaysAction->setText(label);
+
+    setDateTitleFontBold();
+    dateTitle->setText(this->date.toString(Qt::SystemLocaleDate));
 }
 
 /*!
-This function sets the event for the token. Each events is passed and the token
+This function sets the event for the token. Each event is passed and the token
 selects the relevant ones.
 */
 void Token::setEvent(EventItem eventItem)
@@ -192,72 +174,67 @@ an all day event.
 */
 void Token::setDisplayText(bool hasAllDayEvent)
 {
-  QString dayText;
+	QString dayText;
+	QString maroon = "<font size=\"4\" color=\"maroon\" face=\"Verdana\">%1</font></color>";
+	QString boldMaroon = "<b>" + maroon + "< / b>";
+	QString boldGreen = "<b><font size = \"5\" color=\"green\" face=\"Verdana\">%1</font></color></b>";
+	QString black = "<font size=\"4\" color=\"black\" face=\"Verdana\">%1</font></color>";
+	QString boldBlack = "<b>" + black + "< / b>";
+    QString gray = "<font size=\"4\" color=\"gray\" face=\"Verdana\">%1</font></color>";
 
-  if (hasAllDayEvent)
-  {
-    if (date.month() == month)
-    {
-      if (date == QDate::currentDate())
-      {
-        dayText = QString("<b><font size=\"4\" color=\"maroon\" face=\"Verdana\">%1</font></color></b>").
-                  arg(date.day());
-      }
-      else if (date == ((DaysTable*)calendar)->getCalculatedDay())
-      {
-          dayText = QString("<b><font size=\"5\" color=\"green\" face=\"Verdana\">%1</font></color></b>").
-              arg(date.day());
-      }
-      else
-      {
-        dayText = QString("<b><font size=\"4\" color=\"maroon\" face=\"Verdana\">%1</font></color></b>").
-                  arg(date.day());
-      }
-    }
-    else
-    {
-      dayText = QString("<font size=\"4\" color=\"maroon\" face=\"Verdana\">%1</font></color>").
-                arg(date.day());
-    }
-  }
-  else
-  {
-    if (date.month() == month)
-    {
-      if (date == QDate::currentDate())
-      {
-        dayText = QString("<b><font size=\"4\" color=\"black\" face=\"Verdana\">%1</font></color></b>").
-                  arg(date.day());
-      }
-      else if (date == ((DaysTable*)calendar)->getCalculatedDay())
-      {
-          dayText = QString("<b><font size=\"5\" color=\"green\" face=\"Verdana\">%1</font></color></b>").
-              arg(date.day());
-      }
-      else
-      {
-        dayText = QString("<font size=\"4\" color=\"black\" face=\"Verdana\">%1</font></color>").
-                  arg(date.day());
-      }
-    }
-    else
-    {
-      QString result = "Gray days: " + this->date.toString(Qt::SystemLocaleDate) + " vs. calculated day = " + ((DaysTable*)calendar)->getCalculatedDay().toString(Qt::SystemLocaleDate);
-      qDebug().noquote() << result;
-      if (date == ((DaysTable*)calendar)->getCalculatedDay())
-      {
-        dayText = QString("<b><font size=\"5\" color=\"green\" face=\"Verdana\">%1</font></color></b>").
-                  arg(date.day());
-      }
-      else 
-      {
-        dayText = QString("<font size=\"4\" color=\"gray\" face=\"Verdana\">%1</font></color>").
-                arg(date.day());
-      }
-    }
-  }
+	if (hasAllDayEvent)
+	{
+		if (date.month() == month)
+		{
+			if (date == QDate::currentDate())
+			{
+				dayText = QString(boldMaroon).arg(date.day());
+			}
+			else if (date == ((DaysTable*)daysTable)->getCalculatedDay())
+			{
+				dayText = QString(boldGreen).arg(date.day());
+			}
+			else
+			{
+				dayText = QString(boldMaroon).arg(date.day());
+			}
+		}
+		else
+		{
+			dayText = QString(maroon).arg(date.day());
+		}
+	}
+	else
+	{
+		if (date.month() == month)
+		{
+			if (date == QDate::currentDate())
+			{
+				dayText = QString(boldBlack).arg(date.day());
+			}
+			else if (date == ((DaysTable*)daysTable)->getCalculatedDay())
+			{
+				dayText = QString(boldGreen).arg(date.day());
+			}
+			else
+			{
+				dayText = QString(black).arg(date.day());
+			}
+		}
+		else
+		{
+			if (date == ((DaysTable*)daysTable)->getCalculatedDay())
+			{
+				dayText = QString(boldGreen).arg(date.day());
+			}
+			else
+			{
+				dayText = QString(gray).arg(date.day());
+			}
+		}
+	}
 
-  setText(dayText);
+	setText(dayText);
 }
 
 /*!
@@ -301,60 +278,71 @@ void Token::contextMenuEvent(QContextMenuEvent* event)
     menu.addSeparator();
     menu.addAction(daysTitleAction);
     menu.addAction(daysAction);
-    // menu.actions()[menu.actions().indexOf(daysAction)]->setPriority(QAction::HighPriority);
     menu.setActiveAction(menu.actions()[menu.actions().indexOf(daysAction)]);
     menu.exec(event->globalPos());
 }
 
 void Token::plus100Days()
 {
-    QString result = this->date.toString(Qt::SystemLocaleDate) + " +100 days = " + this->date.addDays(100).toString(Qt::SystemLocaleDate);
-    qDebug().noquote() << result;
-    QDate calculatedDay = this->date.addDays(100);
-    ((DaysTable*)calendar)->animateRight();
-    ((DaysTable*)calendar)->setCalculatedDay(calculatedDay);
-    ((DaysTable*)calendar)->displayDate(calculatedDay);
+    const QDate calculatedDay = this->date.addDays(100);
+    qDebug().noquote() << this->date.toString(Qt::SystemLocaleDate) + " + 100 days = " + calculatedDay.toString(Qt::SystemLocaleDate);
+    skipForwardAndHilite(calculatedDay, calculatedDay.toString(Qt::SystemLocaleDate) + " is 100 days after " + this->date.toString(Qt::SystemLocaleDate));
 }
 
 void Token::plusOneMonth()
 {
-    QString result = this->date.toString(Qt::SystemLocaleDate) + " + one month = " + this->date.addMonths(1).toString(Qt::SystemLocaleDate);
-    qDebug().noquote() << result;
-    QDate calculatedDay = this->date.addMonths(1);
-    ((DaysTable*)calendar)->animateRight();
-    ((DaysTable*)calendar)->setCalculatedDay(calculatedDay);
-    ((DaysTable*)calendar)->displayDate(calculatedDay);
+    const QDate calculatedDay = this->date.addMonths(1);
+    qDebug().noquote() << this->date.toString(Qt::SystemLocaleDate) + " + one month = " + calculatedDay.toString(Qt::SystemLocaleDate);
+    skipForwardAndHilite(calculatedDay, calculatedDay.toString(Qt::SystemLocaleDate) + " is one month after the " + this->date.toString(Qt::SystemLocaleDate));
 }
 
 void Token::plus4Weeks()
 {
-    QString result = this->date.toString(Qt::SystemLocaleDate) + " + 4 weeks = " + this->date.addDays(4*7).toString(Qt::SystemLocaleDate);
-    qDebug().noquote() << result;
-    QDate calculatedDay = this->date.addDays(4 * 7);
-    ((DaysTable*)calendar)->animateRight();
-    ((DaysTable*)calendar)->setCalculatedDay(calculatedDay);
-    ((DaysTable*)calendar)->displayDate(calculatedDay);
+    const QDate calculatedDay = this->date.addDays(4 * 7);
+    qDebug().noquote() << this->date.toString(Qt::SystemLocaleDate) + " + 4 weeks = " + calculatedDay.toString(Qt::SystemLocaleDate);
+    skipForwardAndHilite(calculatedDay, calculatedDay.toString(Qt::SystemLocaleDate) + " is four weeks after " + this->date.toString(Qt::SystemLocaleDate));
 }
 
 void Token::processDays()
 {
-    QString result = this->date.toString(Qt::SystemLocaleDate) + " +" + days->text() + " days = " + this->date.addDays(days->text().toInt()).toString(Qt::SystemLocaleDate);
-    qDebug().noquote() << result;
-    QDate calculatedDay = this->date.addDays(days->text().toInt());
-    if (days->text().toInt() > 15) {
-        ((DaysTable*)calendar)->animateRight();
+    const QDate calculatedDay = this->date.addDays(days->text().toInt());
+    qDebug().noquote() << this->date.toString(Qt::SystemLocaleDate) + " +" + days->text() + " days = " + calculatedDay.toString(Qt::SystemLocaleDate);
+    skipForwardAndHilite(calculatedDay, calculatedDay.toString(Qt::SystemLocaleDate) + " is " + days->text() + " days from " + this->date.toString(Qt::SystemLocaleDate));
+    daysAction->trigger();
+
+    QString expression_string("3 + Math.sqrt(5) + Math.pow(3,2) + Math.log(5)");
+    QScriptEngine expression;
+    double my_val = expression.evaluate(expression_string).toNumber();
+}
+
+void Token::skipForwardAndHilite(const QDate& calculatedDay, const QString& DescriptionOfTheOperationPerformed) {
+    if (calculatedDay.month() > month) {
+        ((DaysTable*)daysTable)->animateRight();
     }
-    else if (days->text().toInt() < -15) {
-        ((DaysTable*)calendar)->animateLeft();
+    else if (calculatedDay.month() < month) {
+        ((DaysTable*)daysTable)->animateLeft();
     }
-    ((DaysTable*)calendar)->setCalculatedDay(calculatedDay);
-    ((DaysTable*)calendar)->displayDate(calculatedDay);
+    ((DaysTable*)daysTable)->setCalculatedDay(calculatedDay);
+    ((DaysTable*)daysTable)->displayDate(calculatedDay);
+
+    const QJsonObject event = QJsonObject(
+        {
+            // field definitions see https://fullcalendar.io/docs/events-json-feed
+            {"id", "calculated day"},
+            {"summary", DescriptionOfTheOperationPerformed},
+            {"start", QJsonObject { {"date", calculatedDay.toString("yyyy-MM-dd")}}},
+            {"end", QJsonObject { {"date", calculatedDay.toString("yyyy-MM-dd")}}}
+        });
+    EventItem eventItem(event);
+    ((DaysTable*)daysTable)->displayEvent(eventItem);
+
+    updateContextMenu();
 }
 
 
 /*!
 Override the paint event. If the token displays a date and this is the current
-date this functions also draws the background.
+date this functions also draws the background, looking like a gray button
 */
 void Token::paintEvent(QPaintEvent *event)
 {

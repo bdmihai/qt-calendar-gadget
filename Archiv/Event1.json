@@ -1,0 +1,35 @@
+  [
+    {
+      "title": "Event 1",
+      "start": "2019-09-05T09:00:00",
+      "end": "2019-09-05T18:00:00"
+    },
+    {
+      "title": "Event 2",
+      "start": "2019-09-08",
+      "end": "2019-09-10"
+    },
+    {
+      "kind": "calendar#event",
+      "summary": "Eat Lou Malnati's Pizza",
+      "start": {
+        "dateTime": "2021-03-12T12:00:00-05:00"
+      },
+      "end": {
+        "dateTime": "2021-03-12T13:00:00-05:00"
+      }
+    },
+    {
+      "id": "calculated day",
+      "kind": "calendar#event",
+      "summary": "-8 days from 19.7.2021",
+      "start": {
+        "date": "2021-07-11"
+      },
+      "end": {
+        "date": "2021-07-11"
+      }
+    }
+
+  ]
+  

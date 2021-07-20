@@ -31,6 +31,7 @@ DaysTable::DaysTable(QWidget *parent) : QWidget(parent)
   createLayout();
   createAnimations();
   calendar = parent;
+  if (dynamic_cast<Calendar*>(calendar) == nullptr) exit(99);
 }
 
 /*!
