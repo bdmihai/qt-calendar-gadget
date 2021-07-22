@@ -76,7 +76,7 @@ QString GoogleService::getLoginError()
 }
 
 /*!
-Get the authentication url required for user login.
+Get list of Google service errors.
 */
 QStringList GoogleService::getErrors()
 {
@@ -137,4 +137,5 @@ Event handler for error.
 void GoogleService::onError(const QString &error)
 {
   errors.append(error);
+  qDebug().noquote() << "Google service error: " << error;
 }
