@@ -53,6 +53,7 @@ build/
 # MSTest test Results
 [Tt]est[Rr]esult*/
 [Bb]uild[Ll]og.*
+.vs/
 
 *_i.c
 *_p.c
@@ -229,3 +230,4 @@ Source/CalendarGadget/GeneratedFiles/qrc_CalendarGadget.cpp
 /Google Calendar API.png
 /Go to APIs overwiew.png
 /ENABLE APIS + SERVICES.png
+Archiv/

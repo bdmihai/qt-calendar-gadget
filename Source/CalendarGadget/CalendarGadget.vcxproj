@@ -275,6 +275,7 @@
     <ClCompile Include="Widgets\Calendar.cpp" />
     <ClCompile Include="Google\CalendarService.cpp" />
     <ClCompile Include="Widgets\ConnectDialog.cpp" />
+    <ClCompile Include="Widgets\DateCalculator.cpp" />
     <ClCompile Include="Widgets\DaysTable.cpp" />
     <ClCompile Include="Widgets\DropDown.cpp" />
     <ClCompile Include="Widgets\DropDownPopup.cpp" />
@@ -286,6 +287,10 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="Widgets\tinyexpr.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="Widgets\Token.cpp" />
     <ClCompile Include="GeneratedFiles\qrc_CalendarGadget.cpp">
@@ -352,6 +357,8 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Widgets\DateCalculator.h" />
+    <ClInclude Include="Widgets\tinyexpr.h" />
     <CustomBuild Include="Google\AuthService.h">
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Moc%27ing %(Filename)%(Extension)...</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Moc%27ing %(Filename)%(Extension)...</Message>

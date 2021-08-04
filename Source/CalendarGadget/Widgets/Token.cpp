@@ -22,6 +22,8 @@
 #include "StdAfx.h"
 #include "Token.h"
 #include "DaysTable.h"
+#include "DateCalculator.h"
+
 #pragma warning(push)
 #pragma warning(disable : 26409) 
 // don't know how to do this to avoid warning C26409 
@@ -67,16 +69,17 @@ Token::Token(QWidget* parent) : QLabel(parent)
 	plus4WeeksAction->setStatusTip(tr("Add four weeks to selected date"));
 	connect(plus4WeeksAction, &QAction::triggered, this, &Token::plus4Weeks);
 
-	daysTitle = new QLabel("Enter number of days:");
+	daysTitle = new QLabel("Enter days + (w)eeks + (m)onths + (y)ears:");
 	daysTitle->setAlignment(Qt::AlignLeft);
 	daysTitleAction = new QWidgetAction(this);
 	daysTitleAction->setDefaultWidget(daysTitle);
 
 	days = new QLineEdit();
-	QString numbers = "#######";
-	days->setMaxLength(numbers.length());
-	days->setInputMask(numbers);
-	days->setPlaceholderText("200");
+	// QString numbers = "#######";
+	// days->setMaxLength(numbers.length());
+	// days->setInputMask(numbers);
+    days->setMaxLength(30);
+    days->setPlaceholderText("100/2 - 4w + 1 m + y");
 	daysAction = new QWidgetAction(this);
     daysAction->setDefaultWidget(days);
 
@@ -177,7 +180,7 @@ void Token::setDisplayText(bool hasAllDayEvent)
 	QString dayText;
 	QString maroon = "<font size=\"4\" color=\"maroon\" face=\"Verdana\">%1</font></color>";
 	QString boldMaroon = "<b>" + maroon + "< / b>";
-	QString boldGreen = "<b><font size = \"5\" color=\"green\" face=\"Verdana\">%1</font></color></b>";
+	QString boldGreen = "<b><font size = \"6\" color=\"darkorange\" face=\"Verdana\">%1</font></color></b>";
 	QString black = "<font size=\"4\" color=\"black\" face=\"Verdana\">%1</font></color>";
 	QString boldBlack = "<b>" + black + "< / b>";
     QString gray = "<font size=\"4\" color=\"gray\" face=\"Verdana\">%1</font></color>";
@@ -305,7 +308,9 @@ void Token::plus4Weeks()
 
 void Token::processDays()
 {
-    const QDate calculatedDay = this->date.addDays(days->text().toInt());
+    DateCalculator dc(this->date);
+    dc.evaluate(days->text());
+    const QDate calculatedDay = dc.currentDate(); // this->date.addDays(days->text().toInt());
     qDebug().noquote() << this->date.toString(Qt::SystemLocaleDate) + " +" + days->text() + " days = " + calculatedDay.toString(Qt::SystemLocaleDate);
     skipForwardAndHilite(calculatedDay, calculatedDay.toString(Qt::SystemLocaleDate) + " is " + days->text() + " days from " + this->date.toString(Qt::SystemLocaleDate));
     daysAction->trigger();
