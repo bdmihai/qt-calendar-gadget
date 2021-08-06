@@ -69,16 +69,13 @@ Token::Token(QWidget* parent) : QLabel(parent)
 	plus4WeeksAction->setStatusTip(tr("Add four weeks to selected date"));
 	connect(plus4WeeksAction, &QAction::triggered, this, &Token::plus4Weeks);
 
-	daysTitle = new QLabel("Enter days + (w)eeks + (m)onths + (y)ears:");
+	daysTitle = new QLabel("Add days + (w)eeks + (m)onths + (y)ears:");
 	daysTitle->setAlignment(Qt::AlignLeft);
 	daysTitleAction = new QWidgetAction(this);
 	daysTitleAction->setDefaultWidget(daysTitle);
 
 	days = new QLineEdit();
-	// QString numbers = "#######";
-	// days->setMaxLength(numbers.length());
-	// days->setInputMask(numbers);
-    days->setMaxLength(30);
+    days->setMaxLength(35);
     days->setPlaceholderText("100/2 - 4w + 1 m + y");
 	daysAction = new QWidgetAction(this);
     daysAction->setDefaultWidget(days);
@@ -145,7 +142,7 @@ void Token::setEvent(EventItem eventItem)
   {
     QString title;
     if (eventItem.allDayEvent)
-      title = "Today:";
+      title = "All-day:";  // all-day has 10.640.000.000 hits vs. "all day" with 407.000.000 hits
     else
       title = QString("%1 - %2:").arg(eventItem.start.toString("hh:mm")).arg(eventItem.end.toString("hh:mm"));
     if (toolTip() == "")
@@ -180,7 +177,7 @@ void Token::setDisplayText(bool hasAllDayEvent)
 	QString dayText;
 	QString maroon = "<font size=\"4\" color=\"maroon\" face=\"Verdana\">%1</font></color>";
 	QString boldMaroon = "<b>" + maroon + "< / b>";
-	QString boldGreen = "<b><font size = \"6\" color=\"darkorange\" face=\"Verdana\">%1</font></color></b>";
+	QString boldOrange = "<b><font size = \"6\" color=\"darkorange\" face=\"Verdana\">%1</font></color></b>";
 	QString black = "<font size=\"4\" color=\"black\" face=\"Verdana\">%1</font></color>";
 	QString boldBlack = "<b>" + black + "< / b>";
     QString gray = "<font size=\"4\" color=\"gray\" face=\"Verdana\">%1</font></color>";
@@ -195,7 +192,7 @@ void Token::setDisplayText(bool hasAllDayEvent)
 			}
 			else if (date == ((DaysTable*)daysTable)->getCalculatedDay())
 			{
-				dayText = QString(boldGreen).arg(date.day());
+				dayText = QString(boldOrange).arg(date.day());
 			}
 			else
 			{
@@ -217,7 +214,7 @@ void Token::setDisplayText(bool hasAllDayEvent)
 			}
 			else if (date == ((DaysTable*)daysTable)->getCalculatedDay())
 			{
-				dayText = QString(boldGreen).arg(date.day());
+				dayText = QString(boldOrange).arg(date.day());
 			}
 			else
 			{
@@ -228,7 +225,7 @@ void Token::setDisplayText(bool hasAllDayEvent)
 		{
 			if (date == ((DaysTable*)daysTable)->getCalculatedDay())
 			{
-				dayText = QString(boldGreen).arg(date.day());
+				dayText = QString(boldOrange).arg(date.day());
 			}
 			else
 			{
@@ -310,7 +307,7 @@ void Token::processDays()
 {
     DateCalculator dc(this->date);
     dc.evaluate(days->text());
-    const QDate calculatedDay = dc.currentDate(); // this->date.addDays(days->text().toInt());
+    const QDate calculatedDay = dc.currentDate();
     qDebug().noquote() << this->date.toString(Qt::SystemLocaleDate) + " +" + days->text() + " days = " + calculatedDay.toString(Qt::SystemLocaleDate);
     skipForwardAndHilite(calculatedDay, calculatedDay.toString(Qt::SystemLocaleDate) + " is " + days->text() + " days from " + this->date.toString(Qt::SystemLocaleDate));
     daysAction->trigger();

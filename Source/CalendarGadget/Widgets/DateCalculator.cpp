@@ -32,7 +32,13 @@ QDate DateCalculator::evaluate(QString expression)
     * What is left at the end is evaluated using tinyexpr, if it works => date = date.addDays(result).
     */
 
-    QString CleanedExpression = expression;
+    qDebug().noquote() << "\tDateCalculator::evaluate(" << expression << ")";
+    QString CleanedExpression = expression.normalized(QString::NormalizationForm_D);
+    CleanedExpression = CleanedExpression.replace(QRegExp("[^a-zA-Z0-9, \t()^*/%+-]"), "");
+    if (CleanedExpression != expression) {
+        qDebug().noquote() << "\t\tusing CleanedExpression" << CleanedExpression << "instead";
+        expression = CleanedExpression;
+    }
     QDate originalDate = date;
 
     // https://doc.qt.io/qt-5/qregularexpression.html

@@ -25,8 +25,6 @@
 #include "Calendar.h"
 #include "ConnectDialog.h"
 
-extern Calendar* pCalendar;
-
 PowerbroadcastEventFilter::PowerbroadcastEventFilter()
 {
     qDebug() << "PowerbroadcastEventFilter::PowerbroadcastEventFilter()";

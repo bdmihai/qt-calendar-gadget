@@ -319,9 +319,6 @@ the moving and resizing.
 */
 void Gadget::mousePressEvent(QMouseEvent *event)
 {
-  QString msg = QString("Gadget::mousePressEvent()");
-  qDebug().noquote() << msg;
-
   if (event->button() == Qt::LeftButton)
   {
     if ((event->x() > size().width() - GADGET_TOOL_EDGE) &&

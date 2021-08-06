@@ -51,6 +51,6 @@ int main(int argc, char *argv[])
   app.installNativeEventFilter(calendar.getPowerbroadcastEventFilter()); //installs event filter inside the calendar widget, on the app application instance
 
   // run the application
-  app.setQuitOnLastWindowClosed(false);  // avoid closing on show a dialog e.g. QMessageBox
+  app.setQuitOnLastWindowClosed(false);  // avoid closing on showing a dialog e.g. QMessageBox
   return app.exec();;
 }
