@@ -25,6 +25,52 @@
 #include "Calendar.h"
 #include "ConnectDialog.h"
 
+extern Calendar* pCalendar;
+
+PowerbroadcastEventFilter::PowerbroadcastEventFilter()
+{
+    qDebug() << "PowerbroadcastEventFilter::PowerbroadcastEventFilter()";
+}
+
+void PowerbroadcastEventFilter::setCalendardReference(Calendar* calendar)
+{
+    this->calendar = calendar;
+}
+
+bool PowerbroadcastEventFilter::nativeEventFilter(const QByteArray& eventType, void* message, long* result)
+// Q_DECL_OVERRIDE 
+{
+    MSG* msg = static_cast<MSG*>(message);
+
+    // https://docs.microsoft.com/en-us/windows/win32/power/wm-powerbroadcast
+    if (msg->message == WM_POWERBROADCAST) {
+        switch (msg->wParam) {
+        case PBT_APMPOWERSTATUSCHANGE:
+            qDebug() << ("PBT_APMPOWERSTATUSCHANGE received- Notifies applications of a change in the power status of the computer, such as a switch from battery power to A/C. The system also broadcasts this event when remaining battery power slips below the threshold specified by the user or if the battery power changes by a specified percentage.\n");
+            break;
+        case PBT_APMRESUMEAUTOMATIC:
+            qDebug() << ("PBT_APMRESUMEAUTOMATIC received - Notifies applications that the system is resuming from sleep or hibernation. This event is delivered every time the system resumes and does not indicate whether a user is present.\n");
+            // A PBT_APMRESUMEAUTOMATIC message arrives whenever the system resumes. 
+            // We need to re-create the calendar service then.
+            calendar->refreshGoogleService();
+            break;
+        case PBT_APMRESUMESUSPEND:
+            qDebug() << ("PBT_APMRESUMESUSPEND received - Notifies applications that the system has resumed operation after being suspended.\n");
+            break;
+        case PBT_APMSUSPEND:
+            qDebug() << ("PBT_APMSUSPEND received - Notifies applications that the computer is about to enter a suspended state. This event is typically broadcast when all applications and installable drivers have returned TRUE to a previous PBT_APMQUERYSUSPEND event.\n");
+            break;
+        case PBT_POWERSETTINGCHANGE:
+            qDebug() << ("PBT_POWERSETTINGCHANGE received - Power setting change event sent with a WM_POWERBROADCAST window message or in a HandlerEx notification callback for services.\n");
+            break;
+        }
+    }
+    // An application should return TRUE if it processes this message.
+    // If false is returned the message is still being processed by the system.
+    return false;
+}
+
+
 /*!
 Create a new instance of the Calendar class.
 */
@@ -58,6 +104,16 @@ Clean up.
 Calendar::~Calendar()
 {
   delete googleService;
+}
+
+boolean Calendar::refreshGoogleService()
+{
+    // Whenever the system resumes we need to re-create the calendar service
+    if (googleService != NULL) delete googleService;
+    googleService = NULL;
+    googleService = new GoogleService(this);
+    if (googleService != NULL) return true;
+    else return false;
 }
 
 /*!
@@ -182,6 +238,12 @@ QDate Calendar::getCalculatedDay()
 {
     return calculatedDay;
 }
+
+PowerbroadcastEventFilter* Calendar::getPowerbroadcastEventFilter()
+{
+    return &powerbroadcastEventFilter;
+}
+
 
 /*!
 Updates the months to the month selection drop down.

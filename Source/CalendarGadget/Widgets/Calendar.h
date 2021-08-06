@@ -28,6 +28,18 @@
 #include "DropDown.h"
 
 #include "..\Google\GoogleService.h"
+#include <QAbstractNativeEventFilter>
+
+class Calendar;
+
+class PowerbroadcastEventFilter : public QAbstractNativeEventFilter {
+public:
+    PowerbroadcastEventFilter();
+    bool nativeEventFilter(const QByteArray& eventType, void* message, long* result) Q_DECL_OVERRIDE;
+    void setCalendardReference(Calendar* calendar);
+private:
+    Calendar* calendar;
+};
 
 /*!
 This represents the main window for the application.
@@ -39,6 +51,7 @@ class Calendar : public Gadget
   public:
     Calendar(QWidget *parent = 0);
     virtual ~Calendar();
+    boolean refreshGoogleService();
 
   protected:
     void createLayout();
@@ -49,6 +62,7 @@ class Calendar : public Gadget
       void setCurrentDate(QDate date);
       void setCalculatedDay(QDate date);
       QDate getCalculatedDay();
+      PowerbroadcastEventFilter* getPowerbroadcastEventFilter();
   
   public slots:
       void updateDisplay();
@@ -82,6 +96,7 @@ class Calendar : public Gadget
     QDate calculatedDay;
 
     GoogleService *googleService;
+    PowerbroadcastEventFilter powerbroadcastEventFilter;
 };
 
 #endif
