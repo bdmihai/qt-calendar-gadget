@@ -55,6 +55,7 @@ class Calendar : public Gadget
 
   protected:
     void createLayout();
+    void connectDaysTableToGoogleService();
     virtual void showEvent(QShowEvent * event);
     virtual void closeEvent(QCloseEvent *event);
 

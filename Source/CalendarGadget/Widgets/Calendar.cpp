@@ -104,14 +104,34 @@ Calendar::~Calendar()
   delete googleService;
 }
 
+/*!
+Whenever the system resumes we need to re-create the calendar service, if possible
+*/
 boolean Calendar::refreshGoogleService()
 {
-    // Whenever the system resumes we need to re-create the calendar service
+    if (!googleService->getLoginError().isEmpty()) {
+        // if no valid login do not try again 
+        qDebug().noquote() << "Calendar::refreshGoogleService() failed due to getLoginError() = " << googleService->getLoginError();
+        return false;
+    }
+
     if (googleService != NULL) delete googleService;
     googleService = NULL;
     googleService = new GoogleService(this);
-    if (googleService != NULL) return true;
-    else return false;
+    connectDaysTableToGoogleService();
+    updateCurrent();
+    updateDisplay();
+
+    if (googleService != NULL) {
+        if (googleService->getErrors().count() > 0 || !googleService->isServiceAvailable()) {
+            qDebug().noquote() << "Calendar::refreshGoogleService() failed due to getErrors() = " << googleService->getErrors();
+            qDebug().noquote() << "Calendar::refreshGoogleService() failed due to isServiceAvailable = " << googleService->isServiceAvailable();
+            return false;
+        }
+        return true;
+    }
+    else 
+        return false;
 }
 
 /*!
@@ -150,10 +170,7 @@ void Calendar::createLayout()
   daysTable->resize(299, 158);
   daysTable->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
-  connect(daysTable, SIGNAL(requestEvents(const QDateTime &, const QDateTime &)),
-          googleService, SLOT(getEvents(const QDateTime &, const QDateTime &)));
-  connect(googleService, SIGNAL(eventAvailable(EventItem)),
-          daysTable, SLOT(displayEvent(EventItem)));
+  connectDaysTableToGoogleService();
 
   todayButton = new Button(this);
   todayButton->setAlignment(Qt::AlignCenter);
@@ -193,6 +210,14 @@ void Calendar::createLayout()
 
   setWindowTitle("Calendar");
   setWindowIcon(QIcon(":/AppIcon.png"));
+}
+
+void Calendar::connectDaysTableToGoogleService()
+{
+    connect(daysTable, SIGNAL(requestEvents(const QDateTime&, const QDateTime&)),
+        googleService, SLOT(getEvents(const QDateTime&, const QDateTime&)));
+    connect(googleService, SIGNAL(eventAvailable(EventItem)),
+        daysTable, SLOT(displayEvent(EventItem)));
 }
 
 /*!
@@ -394,11 +419,13 @@ Shows the about dialog.
 */
 void Calendar::showAbout()
 {
+  QString googlepresent = refreshGoogleService() ? " " : " not ";
   QMessageBox::about(this, tr("About Calendar Gadget"),
                      tr("<b>Calendar Gadget</b> version ")  + APP_VERSION +
                      tr("<p>Developed using <a href=\"http://www.qt.io\">Qt ")
-                     + qVersion() + tr(" framework</a>.</p>"
-                                       "<p>Email : <a href=\"mailto:bdmihai@gmail.com\">bdmihai@gmail.com</a></p>"));
+                     + qVersion() + tr(" framework</a>.</p>")
+                                  + tr("<p>Google Calendar service is") + googlepresent + tr("present.</p>") 
+                                  + tr("<p>Email : <a href=\"mailto:bdmihai@gmail.com\">bdmihai@gmail.com</a></p>"));
 }
 
 /*!

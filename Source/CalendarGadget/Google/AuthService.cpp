@@ -38,6 +38,9 @@ AuthService::AuthService(QObject *parent) :
 
   // setup a timer to refresh the access token
   accessTokenTimer.setSingleShot(true);
+  if (!accessTokenTimer.isActive()) 
+      accessTokenTimer.start((5 - 1) * 1000);  // start if not already done
+
   connect(&accessTokenTimer, SIGNAL(timeout()),
           this, SLOT(refreshToken()));
 }
@@ -229,8 +232,10 @@ void AuthService::exchangeCodeForTokenFinished()
       if (value.isDouble())
       {
         int expTime = value.toInt();
-        if (expTime > 5)
-          accessTokenTimer.start((expTime - 5) * 1000);
+        if (expTime > 5) {
+            qDebug().noquote() << " AuthService::exchangeCodeForTokenFinished() start timer for " << expTime << " seconds";
+            accessTokenTimer.start((expTime - 5) * 1000);
+        }
       }
 
       error = "";
@@ -277,8 +282,10 @@ void AuthService::refreshTokenFinished()
       if (value.isDouble())
       {
         int expTime = value.toInt();
-        if (expTime > 5)
-          accessTokenTimer.start((expTime - 5) * 1000);
+        if (expTime > 5) {
+            qDebug().noquote() << "AuthService::refreshTokenFinished() start timer for " << expTime << " seconds";
+            accessTokenTimer.start((expTime - 5) * 1000);
+        }
       }
 
       error = "";
