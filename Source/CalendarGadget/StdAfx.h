@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2010-2011 B.D. Mihai.
+** Copyright (C) 2010-2022 B.D. Mihai.
 **
 ** This file is part of CalendarGadget.
 **
