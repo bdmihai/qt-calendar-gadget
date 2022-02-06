@@ -37,10 +37,12 @@ class Token : public QLabel
     virtual ~Token();
 
     void setDate(const QDate &newDate, const int &currentMonth);
+    void updateContextMenu();
     void setEvent(EventItem eventItem);
 
   protected:
     QDate date;
+    QWidget *daysTable;
     int month;
     void setDisplayText(bool hasAllDayEvent);
 
@@ -48,6 +50,26 @@ class Token : public QLabel
     virtual void mouseMoveEvent(QMouseEvent *event);
     virtual void mousePressEvent(QMouseEvent *event);
     virtual void mouseReleaseEvent(QMouseEvent *event);
+    virtual void contextMenuEvent(QContextMenuEvent* event);
+
+private slots:
+    void plus100Days();
+    void plusOneMonth();
+    void plus4Weeks();
+    void processDays();
+
+private:
+    QLabel* dateTitle;
+    QWidgetAction* dateTitleAction;
+    QAction* plus100DaysAction;
+    QAction* plusOneMonthAction;
+    QAction* plus4WeeksAction;
+    QLabel* daysTitle;
+    QWidgetAction* daysTitleAction;
+    QLineEdit* days;
+    QWidgetAction* daysAction;
+    void setDateTitleFontBold();
+    void Token::skipForwardAndHilite(const QDate& calculatedDay, const QString& DescriptionOfTheOperationPerformed);
 };
 
 #endif

@@ -40,7 +40,7 @@ class ConnectDialog : public QDialog
     void titleChanged(const QString &title);
 
   protected:
-    QWebView *webView;
+    QWebEngineView *webView;
     QString authCode;
 };
 

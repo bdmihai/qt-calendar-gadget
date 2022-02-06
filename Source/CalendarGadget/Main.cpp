@@ -47,7 +47,10 @@ int main(int argc, char *argv[])
   // show the main window
   Calendar calendar;
   calendar.show();
+  calendar.getPowerbroadcastEventFilter()->setCalendardReference(&calendar);
+  app.installNativeEventFilter(calendar.getPowerbroadcastEventFilter()); //installs event filter inside the calendar widget, on the app application instance
 
   // run the application
+  app.setQuitOnLastWindowClosed(false);  // avoid closing on showing a dialog e.g. QMessageBox
   return app.exec();;
 }

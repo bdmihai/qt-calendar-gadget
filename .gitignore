@@ -53,6 +53,7 @@ build/
 # MSTest test Results
 [Tt]est[Rr]esult*/
 [Bb]uild[Ll]og.*
+.vs/
 
 *_i.c
 *_p.c
@@ -143,11 +144,18 @@ AppPackages/
 # Others
 sql/
 *.Cache
+descript.ion
 ClientBin/
 [Ss]tyle[Cc]op.*
 ~$*
 *~
 *.dbmdl
+*.VC.db
+*.VC.db-shm
+*.VC.db-wal
+*.VC.opendb
+*.lnk
+*.URL
 *.[Pp]ublish.xml
 *.pfx
 *.publishsettings
@@ -216,3 +224,11 @@ pip-log.txt
 .mr.developer.cfg
 Source/CalendarGadget/Settings.ini
 Source/CalendarGadget/GeneratedFiles/qrc_CalendarGadget.cpp
+/!ReadMe.txt
+/client_secret_*.apps.googleusercontent.com.json 
+/Google Dashboard.png
+/Google Calendar API.png
+/Go to APIs overwiew.png
+/ENABLE APIS + SERVICES.png
+Archiv/
+/Source/CalendarGadget/Settings-Google.cpp

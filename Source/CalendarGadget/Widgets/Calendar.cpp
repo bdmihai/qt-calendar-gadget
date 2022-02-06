@@ -25,6 +25,50 @@
 #include "Calendar.h"
 #include "ConnectDialog.h"
 
+PowerbroadcastEventFilter::PowerbroadcastEventFilter()
+{
+    qDebug() << "PowerbroadcastEventFilter::PowerbroadcastEventFilter()";
+}
+
+void PowerbroadcastEventFilter::setCalendardReference(Calendar* calendar)
+{
+    this->calendar = calendar;
+}
+
+bool PowerbroadcastEventFilter::nativeEventFilter(const QByteArray& eventType, void* message, long* result)
+// Q_DECL_OVERRIDE 
+{
+    MSG* msg = static_cast<MSG*>(message);
+
+    // https://docs.microsoft.com/en-us/windows/win32/power/wm-powerbroadcast
+    if (msg->message == WM_POWERBROADCAST) {
+        switch (msg->wParam) {
+        case PBT_APMPOWERSTATUSCHANGE:
+            qDebug() << ("PBT_APMPOWERSTATUSCHANGE received- Notifies applications of a change in the power status of the computer, such as a switch from battery power to A/C. The system also broadcasts this event when remaining battery power slips below the threshold specified by the user or if the battery power changes by a specified percentage.\n");
+            break;
+        case PBT_APMRESUMEAUTOMATIC:
+            qDebug() << ("PBT_APMRESUMEAUTOMATIC received - Notifies applications that the system is resuming from sleep or hibernation. This event is delivered every time the system resumes and does not indicate whether a user is present.\n");
+            // A PBT_APMRESUMEAUTOMATIC message arrives whenever the system resumes. 
+            // We need to re-create the calendar service then.
+            calendar->refreshGoogleService();
+            break;
+        case PBT_APMRESUMESUSPEND:
+            qDebug() << ("PBT_APMRESUMESUSPEND received - Notifies applications that the system has resumed operation after being suspended.\n");
+            break;
+        case PBT_APMSUSPEND:
+            qDebug() << ("PBT_APMSUSPEND received - Notifies applications that the computer is about to enter a suspended state. This event is typically broadcast when all applications and installable drivers have returned TRUE to a previous PBT_APMQUERYSUSPEND event.\n");
+            break;
+        case PBT_POWERSETTINGCHANGE:
+            qDebug() << ("PBT_POWERSETTINGCHANGE received - Power setting change event sent with a WM_POWERBROADCAST window message or in a HandlerEx notification callback for services.\n");
+            break;
+        }
+    }
+    // An application should return TRUE if it processes this message.
+    // If false is returned the message is still being processed by the system.
+    return false;
+}
+
+
 /*!
 Create a new instance of the Calendar class.
 */
@@ -45,8 +89,9 @@ Calendar::Calendar(QWidget *parent) : Gadget(parent)
   updateTimer.start();
 
   connect(&updateTimer, SIGNAL(timeout()), this, SLOT(updateCurrent()));
+  calculatedDay = QDate(1473, 2, 19);
 
-  // initial update
+    // initial update
   updateCurrent();
   updateDisplay();
 }
@@ -57,6 +102,36 @@ Clean up.
 Calendar::~Calendar()
 {
   delete googleService;
+}
+
+/*!
+Whenever the system resumes we need to re-create the calendar service, if possible
+*/
+boolean Calendar::refreshGoogleService()
+{
+    if (!googleService->getLoginError().isEmpty()) {
+        // if no valid login do not try again 
+        qDebug().noquote() << "Calendar::refreshGoogleService() failed due to getLoginError() = " << googleService->getLoginError();
+        return false;
+    }
+
+    if (googleService != NULL) delete googleService;
+    googleService = NULL;
+    googleService = new GoogleService(this);
+    connectDaysTableToGoogleService();
+    updateCurrent();
+    updateDisplay();
+
+    if (googleService != NULL) {
+        if (googleService->getErrors().count() > 0 || !googleService->isServiceAvailable()) {
+            qDebug().noquote() << "Calendar::refreshGoogleService() failed due to getErrors() = " << googleService->getErrors();
+            qDebug().noquote() << "Calendar::refreshGoogleService() failed due to isServiceAvailable = " << googleService->isServiceAvailable();
+            return false;
+        }
+        return true;
+    }
+    else 
+        return false;
 }
 
 /*!
@@ -95,10 +170,7 @@ void Calendar::createLayout()
   daysTable->resize(299, 158);
   daysTable->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
-  connect(daysTable, SIGNAL(requestEvents(const QDateTime &, const QDateTime &)),
-          googleService, SLOT(getEvents(const QDateTime &, const QDateTime &)));
-  connect(googleService, SIGNAL(eventAvailable(EventItem)),
-          daysTable, SLOT(displayEvent(EventItem)));
+  connectDaysTableToGoogleService();
 
   todayButton = new Button(this);
   todayButton->setAlignment(Qt::AlignCenter);
@@ -140,6 +212,14 @@ void Calendar::createLayout()
   setWindowIcon(QIcon(":/AppIcon.png"));
 }
 
+void Calendar::connectDaysTableToGoogleService()
+{
+    connect(daysTable, SIGNAL(requestEvents(const QDateTime&, const QDateTime&)),
+        googleService, SLOT(getEvents(const QDateTime&, const QDateTime&)));
+    connect(googleService, SIGNAL(eventAvailable(EventItem)),
+        daysTable, SLOT(displayEvent(EventItem)));
+}
+
 /*!
 This function overrides the normal widget show event in order to load the
 settings and perform event driven tasks.
@@ -166,6 +246,27 @@ void Calendar::closeEvent(QCloseEvent *event)
   }
   Gadget::closeEvent(event);
 }
+
+void Calendar::setCurrentDate(QDate date)
+{
+    displayDate = date;
+}
+
+void Calendar::setCalculatedDay(QDate date)
+{
+    calculatedDay = date;
+}
+
+QDate Calendar::getCalculatedDay()
+{
+    return calculatedDay;
+}
+
+PowerbroadcastEventFilter* Calendar::getPowerbroadcastEventFilter()
+{
+    return &powerbroadcastEventFilter;
+}
+
 
 /*!
 Updates the months to the month selection drop down.
@@ -318,11 +419,13 @@ Shows the about dialog.
 */
 void Calendar::showAbout()
 {
+  QString googlepresent = refreshGoogleService() ? " " : " not ";
   QMessageBox::about(this, tr("About Calendar Gadget"),
                      tr("<b>Calendar Gadget</b> version ")  + APP_VERSION +
                      tr("<p>Developed using <a href=\"http://www.qt.io\">Qt ")
-                     + qVersion() + tr(" framework</a>.</p>"
-                                       "<p>Email : <a href=\"mailto:bdmihai@gmail.com\">bdmihai@gmail.com</a></p>"));
+                     + qVersion() + tr(" framework</a>.</p>")
+                                  + tr("<p>Google Calendar service is") + googlepresent + tr("present.</p>") 
+                                  + tr("<p>Email : <a href=\"mailto:bdmihai@gmail.com\">bdmihai@gmail.com</a></p>"));
 }
 
 /*!

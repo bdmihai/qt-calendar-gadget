@@ -1,6 +1,8 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual Studio 2010
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31205.134
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Doc", "Doc", "{A27408AF-BAD4-419D-9006-5DE5DD8CE3EB}"
 	ProjectSection(SolutionItems) = preProject
 		..\Doc\History.txt = ..\Doc\History.txt
@@ -23,18 +25,27 @@ EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
+		Debug|x64 = Debug|x64
 		Release|Win32 = Release|Win32
+		Release|x64 = Release|x64
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{DCD74DF5-42A0-49D9-86DD-C35F9D0AA7E0}.Debug|Win32.ActiveCfg = Debug|Win32
 		{DCD74DF5-42A0-49D9-86DD-C35F9D0AA7E0}.Debug|Win32.Build.0 = Debug|Win32
+		{DCD74DF5-42A0-49D9-86DD-C35F9D0AA7E0}.Debug|x64.ActiveCfg = Debug|x64
+		{DCD74DF5-42A0-49D9-86DD-C35F9D0AA7E0}.Debug|x64.Build.0 = Debug|x64
 		{DCD74DF5-42A0-49D9-86DD-C35F9D0AA7E0}.Release|Win32.ActiveCfg = Release|Win32
 		{DCD74DF5-42A0-49D9-86DD-C35F9D0AA7E0}.Release|Win32.Build.0 = Release|Win32
+		{DCD74DF5-42A0-49D9-86DD-C35F9D0AA7E0}.Release|x64.ActiveCfg = Release|x64
+		{DCD74DF5-42A0-49D9-86DD-C35F9D0AA7E0}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{DCD74DF5-42A0-49D9-86DD-C35F9D0AA7E0} = {6954EAF6-32CA-424D-B4D7-8ECB21C6AC96}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {2D418940-B180-4C32-99DE-E7E42A783D64}
 	EndGlobalSection
 EndGlobal

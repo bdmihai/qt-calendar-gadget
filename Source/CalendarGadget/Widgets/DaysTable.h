@@ -36,7 +36,10 @@ class DaysTable : public QWidget
     virtual ~DaysTable();
 
     void createLayout();
+    void createBoldWeekdaysHeaderLine(QGridLayout* daysLayout);
     void createAnimations();
+    void setCalculatedDay(QDate date);
+    QDate getCalculatedDay();
 
     void animateLeft();
     void animateRight();
@@ -55,6 +58,7 @@ class DaysTable : public QWidget
     QList<Token *> cwList;
     QList<Token *> daysList;
     QAnimationGroup *animationGroup;
+    QWidget* calendar;
 
     void displayWeekNumbers(QDate firstDate);
     void displayDays(QDate date, QDate firstDate);

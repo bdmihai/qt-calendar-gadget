@@ -40,7 +40,7 @@ void ConnectDialog::createLayout()
   QVBoxLayout *mainLayout = new QVBoxLayout();
   mainLayout->setContentsMargins(0, 0, 0, 0);
   
-  webView = new QWebView(this);
+  webView = new QWebEngineView(this);
   webView->setZoomFactor(0.8);
   connect(webView, SIGNAL(titleChanged(const QString &)), this, SLOT(titleChanged(const QString &)));
   mainLayout->addWidget(webView);

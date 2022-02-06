@@ -21,6 +21,7 @@
 
 #include "StdAfx.h"
 #include "DaysTable.h"
+#include "Calendar.h"
 
 /*!
 Create a new instance of the DaysTable class.
@@ -29,6 +30,8 @@ DaysTable::DaysTable(QWidget *parent) : QWidget(parent)
 {
   createLayout();
   createAnimations();
+  calendar = parent;
+  if (dynamic_cast<Calendar*>(calendar) == nullptr) exit(99);
 }
 
 /*!
@@ -49,18 +52,10 @@ void DaysTable::createLayout()
   viewport = new QWidget();
   mainLayout->addWidget(viewport);
 
-  for (int i = 1; i < 8; i++ )
-  {
-    QString weekDayText = QString("<b><font size=\"4\" color=\"black\" face=\"Verdana\">%1</font></color></b>").
-                          arg(QDate::shortDayName(i));
+  createBoldWeekdaysHeaderLine(daysLayout);
 
-    Token *label = new Token(this);
-    label->setAlignment(Qt::AlignCenter);
-    label->setText(weekDayText);
-    daysLayout->addWidget(label, 0 , i);
-  }
-
-  for (int i = 1; i < 7; i++ )
+  // create calendar week numbers (left column)
+  for (int i = 1; i <= 6; i++ )
   {
     Token *label = new Token(this);
     label->setAlignment(Qt::AlignCenter);
@@ -68,9 +63,10 @@ void DaysTable::createLayout()
     daysLayout->addWidget(label, i , 0);
   }
 
-  for (int i = 1; i < 7; i++ )
+  // create matrix of calendar days
+  for (int i = 1; i <= 6; i++ )
   {
-    for (int j = 1; j < 8; j++ )
+    for (int j = 1; j <= 7; j++ )
     {
       Token *label = new Token(this);
       label->setAlignment(Qt::AlignCenter);
@@ -88,6 +84,20 @@ void DaysTable::createLayout()
   mainLayout->setContentsMargins(0,0,0,0);
   mainLayout->setAlignment(Qt::AlignCenter);
   setLayout(mainLayout);
+}
+
+void DaysTable::createBoldWeekdaysHeaderLine(QGridLayout* daysLayout)
+{
+    for (int i = 1; i <= 7; i++)
+    {
+        QString weekDayText = QString("<b><font size=\"4\" color=\"black\" face=\"Verdana\">%1</font></color></b>").
+            arg(QDate::shortDayName(i));
+
+        Token* label = new Token(this);
+        label->setAlignment(Qt::AlignCenter);
+        label->setText(weekDayText);
+        daysLayout->addWidget(label, 0, i);
+    }
 }
 
 /*!
@@ -108,6 +118,16 @@ void DaysTable::createAnimations()
   animation->setDuration(400);
   animation->setEasingCurve(QEasingCurve::OutQuad);
   animationGroup->addAnimation(animation);
+}
+
+void DaysTable::setCalculatedDay(QDate date)
+{
+    ((Calendar*)calendar)->setCalculatedDay(date);
+}
+
+QDate DaysTable::getCalculatedDay()
+{
+    return  ((Calendar*)calendar)->getCalculatedDay();
 }
 
 /*!
@@ -200,26 +220,25 @@ This function displays the calendar for a given date.
 */
 void DaysTable::displayDate(QDate date)
 {
-  QString monthText;
-  QString yearText;
-  QDate   tempDate;
   QDate   firstDate;
-
-  monthText = QString("<font size=\"5\" color=\"black\" face=\"Verdana\">%1</font></color>").
-              arg(QDate::longMonthName(date.month()));
-
-  yearText = QString("<font size=\"5\" color=\"black\" face=\"Verdana\">%1</font></color>").
-             arg(date.year());
+  static bool calledself = false;
 
   firstDate.setDate(date.year(), date.month(), 1);
   firstDate = firstDate.addDays(-firstDate.dayOfWeek() + 1);
+
+  if (!calledself) {
+      calledself = true;
+      ((Calendar*)calendar)->setCurrentDate(date);
+      ((Calendar*)calendar)->updateDisplay();
+  }
+  calledself = false;
 
   displayWeekNumbers(firstDate);
   displayDays(date, firstDate);
 }
 
 /*!
-This function displays the week numbers on the right.
+This function displays the week numbers on the left of the calendar.
 \param firstDate the first date of the calendar.
 */
 void DaysTable::displayWeekNumbers(QDate firstDate)
