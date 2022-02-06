@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2010-2016 B.D. Mihai.
+** Copyright (C) 2010-2022 B.D. Mihai.
 **
 ** This file is part of CalendarGadget.
 **
@@ -105,16 +105,16 @@ static unsigned char RC4KeyBlock[] =
 };
 
 //! The client id for google connection
-static QString clientId = "";
+static const QString clientId = "";
 
 //! The client secret for google connection
-static QString clientSecret = "";
+static const QString clientSecret = "";
 
 //! The encrypted client id for google connection
-static QString encryptedClientId = "";
+static const QString encryptedClientId = "";
 
 //! The encrypted client secret for google connection
-static QString encryptedClientSecret = "";
+static const QString encryptedClientSecret = "";
 
 /*!
 Create a new instance of the Settings class.
@@ -122,8 +122,6 @@ Create a new instance of the Settings class.
 Settings::Settings(QString filePath)
   : QSettings(filePath, QSettings::IniFormat, 0)
 {
-  if (!QFile::exists(filePath))
-    setDefault();
 }
 
 /*!
@@ -131,6 +129,12 @@ Clean up.
 */
 Settings::~Settings()
 {
+}
+
+void Settings::init()
+{
+  if (!QFile::exists(fileName()))
+    setDefault();
 }
 
 /*!
@@ -142,6 +146,16 @@ void Settings::setDefault()
   setValue("Calendar/Position", QPoint(10,10));
   setValue("Calendar/Size", QSize(350,250));
   setValue("Google/RefreshToken", "");
+
+  if (!clientId.isEmpty()) {
+    setValue("Google/ClientId", clientId);
+    setValue("Google/EncryptedClientId", encrypt(clientId));
+  }
+
+  if (!clientSecret.isEmpty()) {
+    setValue("Google/ClientSecret", clientSecret);
+    setValue("Google/EncryptedClientSecret", encrypt(clientSecret));
+  }
 }
 
 void Settings::setPosition(const QPoint &newPosition)
@@ -171,25 +185,27 @@ QString Settings::getRefreshToken()
 
 void Settings::setRefreshToken(const QString &newRefreshToken)
 {
-  setValue("Google/RefreshToken", encript(newRefreshToken));
+  setValue("Google/RefreshToken", encrypt(newRefreshToken));
 }
 
 QString Settings::getClientId()
 {
-  if (!clientId.isEmpty())
-    return clientId;
   if (!encryptedClientId.isEmpty())
     return decrypt(encryptedClientId);
+
+  if (!clientId.isEmpty())
+    return clientId;
 
   return "";
 }
 
 QString Settings::getClientSecret()
 {
-  if (!clientSecret.isEmpty())
-    return clientSecret;
   if (!encryptedClientSecret.isEmpty())
     return decrypt(encryptedClientSecret);
+
+  if (!clientSecret.isEmpty())
+    return clientSecret;
 
   return "";
 }
@@ -199,7 +215,7 @@ This function encrypts a text using the RC4 algorithm using the Windows CryptoAP
 For more details about the usage of the service please check the following article:
 http://www.phdcc.com/cryptorc4.htm
 */
-QString Settings::encript(const QString &text)
+QString Settings::encrypt(const QString &text)
 {
   unsigned long length = text.length();
   QString helperStr;

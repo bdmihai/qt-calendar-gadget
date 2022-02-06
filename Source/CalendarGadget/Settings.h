@@ -31,7 +31,9 @@ class Settings : public QSettings
 
   public:
     Settings(QString filePath);
-    ~Settings();
+    virtual ~Settings();
+
+    void init();
 
     void setPosition(const QPoint &newPosition);
     QPoint getPosition();
@@ -46,7 +48,7 @@ class Settings : public QSettings
 
   private:
     void setDefault();
-    QString encript(const QString &text);
+    QString encrypt(const QString &text);
     QString decrypt(const QString &text);
 };
 
