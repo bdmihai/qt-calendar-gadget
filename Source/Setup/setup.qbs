@@ -19,37 +19,19 @@
 **
 ****************************************************************************/
 
+import qbs
+
 Product {
-  name: "calendar-gadget"
+  name: "setup"
+  targetName: "CalendarGadgetSetup"
   type: "application"
-  targetName: "CalendarGadget"
-  consoleApplication: false
 
-  // dependencies
-  Depends { name: "cpp" }
-  Depends { name: "Qt.core" }
-  Depends { name: "Qt.gui" }
-  Depends { name: "Qt.widgets" }
-  Depends { name: "Qt.webenginewidgets" }
-
-  // cpp module configuration
-  cpp.includePaths: [ "." ]
-  cpp.dynamicLibraries: [ "User32", "Advapi32" ]
-  cpp.cxxLanguageVersion: "c++14"
-  cpp.useCxxPrecompiledHeader: true
-
-  // precompiled header
-  Group {
-    name: "pch files"
-    files: [ "StdAfx.h" ]
-    fileTags: "cpp_pch_src"
-  }
-
-  // resource files
-  Group {
-    name: "resources"
-    files : [ "resources/*.png", "resources/*.ico", "resources/*.rc", "resources/*.qrc" ]
-  }
+  Depends { name: "innosetup" }
+  Depends { name: "calendar-gadget" }
+  
+  files: [
+    "CalendarGadget.iss"
+  ]
 
   // install group for the produced executable
   Group {
@@ -57,12 +39,4 @@ Product {
     qbs.installDir: ""
     fileTagsFilter: product.type
   }
-
-  files: [
-    "./**/*.h",
-    "./**/*.cpp",
-    "./**/*.c"
-  ]
-
-  excludeFiles: "StdAfx.h"
 }

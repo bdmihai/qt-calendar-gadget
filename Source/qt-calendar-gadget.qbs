@@ -26,6 +26,7 @@ Project {
   minimumQbsVersion: "1.20"
 
   references: [
-    "CalendarGadget/calendar-gadget.qbs"
+    "CalendarGadget/calendar-gadget.qbs",
+	"setup/Setup.qbs"
   ]
 }
